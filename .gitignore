@@ -1,0 +1,10 @@
+bin
+obj
+*.xslt.sql
+*.user
+*.suo
+*.orig
+.vs
+packages
+nuget/package/lib
+*.nupkg
