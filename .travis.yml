@@ -1,0 +1,8 @@
+language: csharp
+solution: WebPush.sln
+install:
+  - nuget restore WebPush.sln
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release WebPush.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./test/bin/Release/WebPush.Test.dll
