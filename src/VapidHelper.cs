@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
 
 namespace WebPush
@@ -50,7 +51,7 @@ namespace WebPush
             jwtPayload.Add("exp", expiration);
             jwtPayload.Add("sub", subject);
 
-            CngKey signingKey = CngKeyHelper.ImportCngKeyFromPrivateKey(decodedPublicKey, decodedPrivateKey);
+            ECPrivateKeyParameters signingKey = CngKeyHelper.GetPrivateKey(decodedPrivateKey);
 
             JWSSigner signer = new JWSSigner(signingKey);
             string token = signer.GenerateSignature(header, jwtPayload);

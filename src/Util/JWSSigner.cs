@@ -1,25 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
 
 namespace WebPush.Util
 {
     public class JWSSigner
     {
-        private readonly CngKey _signingKey;
+        private readonly ECPrivateKeyParameters _privateKey;
 
-        // If changed, also look at changing CngAlgorithm.Sga256
-        private const int KEY_SIZE = 256;
-
-        public JWSSigner(CngKey signingKey)
+        public JWSSigner(ECPrivateKeyParameters privateKey)
         {
-            if (signingKey.KeySize != KEY_SIZE)
-            {
-                throw new ArgumentException("Signing key is not of size " + KEY_SIZE);
-            }
-
-            _signingKey = signingKey;
+           _privateKey = privateKey;
         }
 
         /// <summary>
@@ -32,14 +29,22 @@ namespace WebPush.Util
         {
 
             string securedInput = SecureInput(header, payload);
-            using (ECDsaCng signer = new ECDsaCng(_signingKey))
-            {
-                signer.HashAlgorithm = CngAlgorithm.Sha256;
+            byte[] message = Encoding.UTF8.GetBytes(securedInput);
 
-                byte[] signatureBytes = signer.SignData(Encoding.UTF8.GetBytes(securedInput));
-                string signature = UrlBase64.Encode(signatureBytes);
-                return String.Format("{0}.{1}", securedInput, signature);
-            }
+            SHA256Cng sha256Hasher = new SHA256Cng();
+            byte[] hashedMessage = sha256Hasher.ComputeHash(message);
+
+            ECDsaSigner signer = new ECDsaSigner();
+            signer.Init(true, _privateKey);
+            BigInteger[] results = signer.GenerateSignature(hashedMessage);
+
+            // Required to be exactly 33 bytes
+            // Concated to create signature
+            var a = ByteArrayPadLeft(results[0].ToByteArray(), 33);
+            var b = ByteArrayPadLeft(results[1].ToByteArray(), 33);
+            
+            string signature = UrlBase64.Encode(a.Concat(b).ToArray());
+            return String.Format("{0}.{1}", securedInput, signature);
         }
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
@@ -48,6 +53,14 @@ namespace WebPush.Util
             string encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(payload)));
 
             return String.Format("{0}.{1}", encodeHeader, encodePayload);
+        }
+
+        private static byte[] ByteArrayPadLeft(byte[] src, int size)
+        {
+            byte[] dst = new byte[size];
+            var startAt = dst.Length - src.Length;
+            Array.Copy(src, 0, dst, startAt, src.Length);
+            return dst;
         }
     }
 }
