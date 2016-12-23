@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using WebPush.Util;
 
 namespace WebPush.Test
 {
-    [TestClass]
+    [TestFixture]
     public class UrlBase64Test
     {
-        [TestMethod]
+        [Test]
         public void TestBase64UrlDecode()
         {
             byte[] expected = new byte[3] {181, 235, 45};
@@ -16,7 +16,7 @@ namespace WebPush.Test
             Assert.IsTrue(actual.SequenceEqual(expected));
         }
 
-        [TestMethod]
+        [Test]
         public void TestBase64UrlEncode()
         {
             string expected = @"test";
