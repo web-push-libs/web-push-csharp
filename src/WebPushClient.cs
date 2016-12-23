@@ -7,7 +7,7 @@ using WebPush.Util;
 
 namespace WebPush
 {
-    public class WebPush
+    public class WebPushClient
     {
         // default TTL is 4 weeks.
         const int DefaultTtl = 2419200;
@@ -15,7 +15,7 @@ namespace WebPush
         private string _gcmAPIKey = null;
         private VapidDetails _vapidDetails = null;
 
-        public WebPush()
+        public WebPushClient()
         {
 
         }

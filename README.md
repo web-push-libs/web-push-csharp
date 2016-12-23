@@ -28,6 +28,8 @@ The common use case for this library is an application server using
 a GCM API key and VAPID keys.
 
 ```csharp
+using WebPush;
+
 var pushEndpoint = @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6uDLB6....";
 var p256dh = @"BKK18ZjtENC4jdhAAg9OfJacySQiDVcXMamy3SKKy7FwJcI5E0DKO9v4V2Pb8NnAPN4EVdmhO............";
 var auth = @"fkJatBBEl...............";
@@ -40,11 +42,11 @@ var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
 var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
 //var gciApiKey = @"[your key here]";
 
-var webPush = new WebPush();
+var webPushClient = new WebPushClient();
 try
 {
-	webPush.SendNotification(subscription, "payload", vapidDetails);
-    //webPush.SendNotification(subscription, "payload", gciApiKey);
+	webPushClient.SendNotification(subscription, "payload", vapidDetails);
+    //webPushClient.SendNotification(subscription, "payload", gciApiKey);
 }
 catch (WebPushException exception)
 {
@@ -61,11 +63,11 @@ var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
 var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
 //var gciApiKey = @"[your key here]";
 
-var webPush = new WebPush();
+var webPushClient = new WebPushClient();
 try
 {
-	webPush.SendNotification(subscription, "payload", vapidDetails);
-    //webPush.SendNotification(subscription, "payload", gciApiKey);
+	webPushClient.SendNotification(subscription, "payload", vapidDetails);
+    //webPushClient.SendNotification(subscription, "payload", gciApiKey);
 }
 catch (WebPushException exception)
 {
@@ -136,7 +138,7 @@ URL Safe Base64 encoded strings.
 ## SetGCMAPIKey(apiKey)
 
 ```csharp
-webPush.SetGCMAPIKey(@"your-gcm-key");
+webPushClient.SetGCMAPIKey(@"your-gcm-key");
 ```
 
 ### Input

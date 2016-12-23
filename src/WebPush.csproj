@@ -61,7 +61,7 @@
     <Compile Include="Util\JWSSigner.cs" />
     <Compile Include="Util\UrlBase64.cs" />
     <Compile Include="VapidHelper.cs" />
-    <Compile Include="WebPush.cs" />
+    <Compile Include="WebPushClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
