@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>WebPush</id>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <authors>Cory Thompson</authors>
     <owners>Cory Thompson</owners>
     <licenseUrl>https://github.com/coryjthompson/web-push-csharp/blob/master/LICENSE</licenseUrl>
