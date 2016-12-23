@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
@@ -12,24 +10,8 @@ using Org.BouncyCastle.Security;
 
 namespace WebPush.Util
 {
-    public static class CngKeyHelper
+    public static class ECKeyHelper
     {
-        public static CngKey ImportCngKeyFromPublicKey(byte[] userKey)
-        {
-            byte[] keyType = new byte[] { 0x45, 0x43, 0x4B, 0x31 };
-            byte[] keyLength = new byte[] { 0x20, 0x00, 0x00, 0x00 };
-
-            byte[] keyImport = keyType.Concat(keyLength).Concat(userKey.Skip(1)).ToArray();
-
-            return CngKey.Import(keyImport, CngKeyBlobFormat.EccPublicBlob);
-        }
-
-        public static byte[] ImportPublicKeyFromCngKey(byte[] cngKey)
-        {
-            return (new byte[] { 0x04 }).Concat(cngKey.Skip(8)).ToArray();
-            
-        }
-
         public static ECPrivateKeyParameters GetPrivateKey(byte[] privateKey)
         {
             Asn1Object version = new DerInteger(1);
@@ -48,6 +30,24 @@ namespace WebPush.Util
             AsymmetricCipherKeyPair keyPair = (AsymmetricCipherKeyPair)pemReader.ReadObject();
 
             return (ECPrivateKeyParameters)keyPair.Private;
+        }
+
+        public static ECPublicKeyParameters GetPublicKey(byte[] publicKey)
+        {
+            Asn1Object keyTypeParameters = new DerSequence(new DerObjectIdentifier(@"1.2.840.10045.2.1"), new DerObjectIdentifier(@"1.2.840.10045.3.1.7"));
+            Asn1Object derEncodedKey = new DerBitString(publicKey);
+
+            Asn1Object derSequence = new DerSequence(keyTypeParameters, derEncodedKey);
+
+            var base64EncodedDerSequence = Convert.ToBase64String(derSequence.GetDerEncoded());
+            var pemKey = "-----BEGIN PUBLIC KEY-----\n";
+            pemKey += base64EncodedDerSequence;
+            pemKey += "\n-----END PUBLIC KEY-----";
+
+            StringReader reader = new StringReader(pemKey);
+            PemReader pemReader = new PemReader(reader);
+            var keyPair = pemReader.ReadObject();
+            return (ECPublicKeyParameters) keyPair;
         }
 
         //TODO: Fix to produce valid keys.

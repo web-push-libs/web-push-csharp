@@ -5,6 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Security;
 
 // @LogicSoftware
 // Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
@@ -23,32 +31,30 @@ namespace WebPush.Util
             return Encrypt(userKeyBytes, userSecretBytes, payloadBytes);
         }
 
-        public static EncryptionResult Encrypt(byte[] userKey, byte[] userSecret, byte[] payload
-            //, ushort padding = 0, bool randomisePadding = false // not implemented yet
-            )
+        public static EncryptionResult Encrypt(byte[] userKey, byte[] userSecret, byte[] payload)
         {
             byte[] salt = GenerateSalt(16);
 
-            byte[] serverPublicKey = null;
-            byte[] key = null;
-            CngKey cgnKey = CngKeyHelper.ImportCngKeyFromPublicKey(userKey);
 
-            using (ECDiffieHellmanCng alice = new ECDiffieHellmanCng(256))
-            {
-                alice.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hmac;
-                alice.HashAlgorithm = CngAlgorithm.Sha256;
-                alice.HmacKey = userSecret;
+            X9ECParameters ecParameters = NistNamedCurves.GetByName("P-256");
+            ECDomainParameters ecSpec = new ECDomainParameters(ecParameters.Curve, ecParameters.G, ecParameters.N, ecParameters.H, ecParameters.GetSeed());
+            IAsymmetricCipherKeyPairGenerator keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator("ECDH");
+            keyPairGenerator.Init(new ECKeyGenerationParameters(ecSpec, new SecureRandom()));
 
-                serverPublicKey = CngKeyHelper.ImportPublicKeyFromCngKey(alice.PublicKey.ToByteArray());
-                key = alice.DeriveKeyMaterial(cgnKey);
-            }
+            AsymmetricCipherKeyPair serverKeyPair = keyPairGenerator.GenerateKeyPair();
+            IBasicAgreement ecdhAgreement = AgreementUtilities.GetBasicAgreement("ECDH");
+            ecdhAgreement.Init(serverKeyPair.Private);
 
-            byte[] prk = HKDFSecondStep(key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
+            ECPublicKeyParameters userPublicKey = ECKeyHelper.GetPublicKey(userKey);
+
+            byte[] key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArray();
+            byte[] serverPublicKey = ((ECPublicKeyParameters) serverKeyPair.Public).Q.GetEncoded(false);
+            
+            byte[] prk = HKDF(userSecret, key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
             byte[] cek = HKDF(salt, prk, CreateInfoChunk("aesgcm", userKey, serverPublicKey), 16);
             byte[] nonce = HKDF(salt, prk, CreateInfoChunk("nonce", userKey, serverPublicKey), 12);
 
             byte[] input = AddPaddingToInput(payload);
-
             byte[] encryptedMessage = EncryptAes(nonce, cek, input);
 
             return new EncryptionResult

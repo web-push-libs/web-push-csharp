@@ -34,7 +34,6 @@ namespace WebPush
             ValidatePublicKey(publicKey);
             ValidatePrivateKey(privateKey);
 
-            byte[] decodedPublicKey = UrlBase64.Decode(publicKey);
             byte[] decodedPrivateKey = UrlBase64.Decode(privateKey);
 
             if (expiration == -1)
@@ -51,7 +50,7 @@ namespace WebPush
             jwtPayload.Add("exp", expiration);
             jwtPayload.Add("sub", subject);
 
-            ECPrivateKeyParameters signingKey = CngKeyHelper.GetPrivateKey(decodedPrivateKey);
+            ECPrivateKeyParameters signingKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
 
             JWSSigner signer = new JWSSigner(signingKey);
             string token = signer.GenerateSignature(header, jwtPayload);

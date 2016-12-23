@@ -56,7 +56,7 @@
     <Compile Include="Model\PushSubscription.cs" />
     <Compile Include="Model\VapidDetails.cs" />
     <Compile Include="Model\WebPushException.cs" />
-    <Compile Include="Util\CngKeyHelper.cs" />
+    <Compile Include="Util\ECKeyHelper.cs" />
     <Compile Include="Util\Encryptor.cs" />
     <Compile Include="Util\JWSSigner.cs" />
     <Compile Include="Util\UrlBase64.cs" />
