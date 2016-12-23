@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>WebPush</id>
+    <version>1.0.0</version>
+    <authors>Cory Thompson</authors>
+    <owners>Cory Thompson</owners>
+    <licenseUrl>https://github.com/coryjthompson/web-push-csharp/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/coryjthompson/web-push-csharp/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Web Push library for C#</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>web push notifications vapid</tags>
+    <dependencies>
+       <dependency id="BouncyCastle" version="1.8.1"/>
+       <dependency id="Newtonsoft.Json" version="9.0.1"/>
+       <dependency id="Security.Cryptography" version="1.7.2"/>
+    </dependencies>
+  </metadata>
+</package>
