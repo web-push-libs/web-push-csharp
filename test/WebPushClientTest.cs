@@ -17,6 +17,11 @@ namespace WebPush.Test
 
         private const string TEST_PRIVATE_KEY = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
 
+        private const string TEST_GCM_ENDPOINT = @"https://android.googleapis.com/gcm/send/";
+
+        private const string TEST_FCM_ENDPOINT =
+            @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
+
 
         [Test]
         public void TestSetGCMAPIKey()
@@ -25,7 +30,7 @@ namespace WebPush.Test
 
             string gcmApiKey = @"teststring";
             client.SetGCMAPIKey(gcmApiKey);
-            PushSubscription subscription = new PushSubscription(@"https://android.googleapis.com/gcm/send/", TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+            PushSubscription subscription = new PushSubscription(TEST_GCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
             string authorizationHeader = message.Headers.GetValues("Authorization").First();
 
@@ -51,7 +56,7 @@ namespace WebPush.Test
             client.SetGCMAPIKey(@"somestring");
             client.SetGCMAPIKey(null);
 
-            PushSubscription subscription = new PushSubscription(@"https://android.googleapis.com/gcm/send/", TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+            PushSubscription subscription = new PushSubscription(TEST_GCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
 
             IEnumerable<string> values;
@@ -66,11 +71,27 @@ namespace WebPush.Test
 
             string gcmApiKey = @"teststring";
             client.SetGCMAPIKey(gcmApiKey);
-            PushSubscription subscription = new PushSubscription(@"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6", TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+            PushSubscription subscription = new PushSubscription(TEST_FCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
 
             IEnumerable<string> values;
             Assert.False(message.Headers.TryGetValues("Authorization", out values));
+        }
+
+        [Test]
+        public void TestSetVapidDetails()
+        {
+            WebPushClient client = new WebPushClient();
+            
+            client.SetVapidDetails("mailto:example@example.com", TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+
+            PushSubscription subscription = new PushSubscription(TEST_FCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+            HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
+            string authorizationHeader = message.Headers.GetValues("Authorization").First();
+            string cryptoHeader = message.Headers.GetValues("Crypto-Key").First();
+
+            Assert.True(authorizationHeader.StartsWith("WebPush "));
+            Assert.True(cryptoHeader.Contains("p256ecdsa"));
         }
     }
 }
