@@ -43,7 +43,7 @@ namespace WebPush.Util
 
             ECPublicKeyParameters userPublicKey = ECKeyHelper.GetPublicKey(userKey);
 
-            byte[] key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArray();
+            byte[] key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArrayUnsigned();
             byte[] serverPublicKey = ((ECPublicKeyParameters) serverKeyPair.Public).Q.GetEncoded(false);
             
             byte[] prk = HKDF(userSecret, key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);

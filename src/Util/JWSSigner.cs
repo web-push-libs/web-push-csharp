@@ -40,8 +40,8 @@ namespace WebPush.Util
 
             // Required to be exactly 33 bytes
             // Concated to create signature
-            var a = ByteArrayPadLeft(results[0].ToByteArray(), 33);
-            var b = ByteArrayPadLeft(results[1].ToByteArray(), 33);
+            var a = ByteArrayPadLeft(results[0].ToByteArrayUnsigned(), 33);
+            var b = ByteArrayPadLeft(results[1].ToByteArrayUnsigned(), 33);
             
             string signature = UrlBase64.Encode(a.Concat(b).ToArray());
             return String.Format("{0}.{1}", securedInput, signature);
