@@ -180,7 +180,7 @@ namespace WebPush
             {
                 if (!String.IsNullOrEmpty(currentGCMAPiKey))
                 {
-                    request.Headers.Add(@"Authorization", "key=" + currentGCMAPiKey);
+                    request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGCMAPiKey);
                 }
             }
             else if (currentVapidDetails != null)
