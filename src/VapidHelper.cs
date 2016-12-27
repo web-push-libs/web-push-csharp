@@ -4,17 +4,30 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
 
 namespace WebPush
 {
-    static class VapidHelper
+    public static class VapidHelper
     {
-        // TODO
-        public static void GenerateVapidKeys()
+        /// <summary>
+        /// Generate vapid keys
+        /// </summary>
+        /// <returns></returns>
+        public static VapidDetails GenerateVapidKeys()
         {
+            VapidDetails results = new VapidDetails();
 
+            AsymmetricCipherKeyPair keys = ECKeyHelper.GenerateKeys();
+            byte[] publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
+            byte[] privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
+
+            results.PublicKey = UrlBase64.Encode(publicKey);
+            results.PrivateKey = UrlBase64.Encode(privateKey);
+
+            return results;
         }
 
         /// <summary>
