@@ -31,13 +31,8 @@ namespace WebPush.Util
         public static EncryptionResult Encrypt(byte[] userKey, byte[] userSecret, byte[] payload)
         {
             byte[] salt = GenerateSalt(16);
-            
-            X9ECParameters ecParameters = NistNamedCurves.GetByName("P-256");
-            ECDomainParameters ecSpec = new ECDomainParameters(ecParameters.Curve, ecParameters.G, ecParameters.N, ecParameters.H, ecParameters.GetSeed());
-            IAsymmetricCipherKeyPairGenerator keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator("ECDH");
-            keyPairGenerator.Init(new ECKeyGenerationParameters(ecSpec, new SecureRandom()));
+            AsymmetricCipherKeyPair serverKeyPair = ECKeyHelper.GenerateKeys();
 
-            AsymmetricCipherKeyPair serverKeyPair = keyPairGenerator.GenerateKeyPair();
             IBasicAgreement ecdhAgreement = AgreementUtilities.GetBasicAgreement("ECDH");
             ecdhAgreement.Init(serverKeyPair.Private);
 

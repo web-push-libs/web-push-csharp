@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
@@ -49,17 +50,15 @@ namespace WebPush.Util
             var keyPair = pemReader.ReadObject();
             return (ECPublicKeyParameters) keyPair;
         }
-
-        //TODO: Fix to produce valid keys.
-        // Currently producing keys that are 33 bytes in length, 32 required
+        
         public static AsymmetricCipherKeyPair GenerateKeys()
         {
-            ECKeyPairGenerator gen = new ECKeyPairGenerator();
-            SecureRandom secureRandom = new SecureRandom();
-            DerObjectIdentifier curveName = X962NamedCurves.GetOid("prime256v1");
-            ECKeyGenerationParameters genParam = new ECKeyGenerationParameters(curveName, secureRandom);
-            gen.Init(genParam);
-            return gen.GenerateKeyPair();
+            X9ECParameters ecParameters = NistNamedCurves.GetByName("P-256");
+            ECDomainParameters ecSpec = new ECDomainParameters(ecParameters.Curve, ecParameters.G, ecParameters.N, ecParameters.H, ecParameters.GetSeed());
+            IAsymmetricCipherKeyPairGenerator keyPairGenerator = GeneratorUtilities.GetKeyPairGenerator("ECDH");
+            keyPairGenerator.Init(new ECKeyGenerationParameters(ecSpec, new SecureRandom()));
+
+            return keyPairGenerator.GenerateKeyPair();
         }
     }
 }
