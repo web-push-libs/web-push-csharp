@@ -40,13 +40,13 @@ var privateKey = @"mryM-krWj_6IsIMGsd8wNFXGBxnx...............";
 
 var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
 var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
-//var gciApiKey = @"[your key here]";
+//var gcmApiKey = @"[your key here]";
 
 var webPushClient = new WebPushClient();
 try
 {
 	webPushClient.SendNotification(subscription, "payload", vapidDetails);
-    //webPushClient.SendNotification(subscription, "payload", gciApiKey);
+    //webPushClient.SendNotification(subscription, "payload", gcmApiKey);
 }
 catch (WebPushException exception)
 {
@@ -60,14 +60,15 @@ catch (WebPushException exception)
 
 ```csharp
 var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
-var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
-//var gciApiKey = @"[your key here]";
+
+var options = new Dictionary<string,object>();
+options["vapidDetails"] = new VapidDetails(subject, publicKey, privateKey);
+//options["gcmAPIKey"] = @"[your key here]";
 
 var webPushClient = new WebPushClient();
 try
 {
-	webPushClient.SendNotification(subscription, "payload", vapidDetails);
-    //webPushClient.SendNotification(subscription, "payload", gciApiKey);
+	webPushClient.SendNotification(subscription, "payload", options);
 }
 catch (WebPushException exception)
 {
@@ -102,7 +103,7 @@ any of the following values defined, although none of them are required.
 
 - **gcmAPIKey** can be a GCM API key to be used for this request and this
 request only. This overrides any API key set via `setGCMAPIKey()`.
-- **vapidDetails** should be an object with *subject*, *publicKey* and
+- **vapidDetails** should be a VapidDetails object with *subject*, *publicKey* and
 *privateKey* values defined. These values should follow the [VAPID Spec](https://tools.ietf.org/html/draft-thomson-webpush-vapid).
 - **TTL** is a value in seconds that describes how long a push message is
 retained by the push service (by default, four weeks).
