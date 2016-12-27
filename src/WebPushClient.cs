@@ -47,16 +47,28 @@ namespace WebPush
         /// before sendNotifications() or pass in the details and options to 
         /// sendNotification.
         /// </summary>
+        /// <param name="vapidDetails"></param>
+        public void SetVapidDetails(VapidDetails vapidDetails)
+        {
+            VapidHelper.ValidateSubject(vapidDetails.Subject);
+            VapidHelper.ValidatePublicKey(vapidDetails.PublicKey);
+            VapidHelper.ValidatePrivateKey(vapidDetails.PrivateKey);
+
+            _vapidDetails = vapidDetails;
+        }
+
+        /// <summary>
+        /// When marking requests where you want to define VAPID details, call this method
+        /// before sendNotifications() or pass in the details and options to 
+        /// sendNotification.
+        /// </summary>
         /// <param name="subject">This must be either a URL or a 'mailto:' address</param>
         /// <param name="publicKey">The public VAPID key as a base64 encoded string</param>
         /// <param name="privateKey">The private VAPID key as a base64 encoded string</param>
         public void SetVapidDetails(string subject, string publicKey, string privateKey)
         {
-            VapidHelper.ValidateSubject(subject);
-            VapidHelper.ValidatePublicKey(publicKey);
-            VapidHelper.ValidatePrivateKey(privateKey);
 
-            _vapidDetails = new VapidDetails(subject, publicKey, privateKey);
+            SetVapidDetails(new VapidDetails(subject, publicKey, privateKey));
         }
 
         /// <summary>
