@@ -110,14 +110,14 @@ retained by the push service (by default, four weeks).
 
 <hr />
 
-<!-- Not yet implemented 
-## generateVAPIDKeys()
+## GenerateVapidKeys()
 
-```javascript
-const vapidKeys = webpush.generateVAPIDKeys();
+```csharp
+VapidDetails vapidKeys = VapidHelper.GenerateVapidKeys();
 
 // Prints 2 URL Safe Base64 Encoded Strings
-console.log(vapidKeys.publicKey, vapidKeys.privateKey);
+Console.WriteLine("Public {0}", vapidKeys.publicKey);
+Console.WriteLine("Private {0}", vapidKeys.privateKey);
 ```
 
 ### Input
@@ -126,14 +126,13 @@ None.
 
 ### Returns
 
-Returns an object with **publicKey** and **privateKey** values which are
+Returns a VapidDetails object with **publicKey** and **privateKey** values populated which are
 URL Safe Base64 encoded strings.
 
 > **Note:** You should create these keys once, store them and use them for all
 > future messages you send.
 
 <hr />
--->
 
 ## SetGCMAPIKey(apiKey)
 
