@@ -1,13 +1,12 @@
-﻿using Security.Cryptography;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -73,30 +72,17 @@ namespace WebPush.Util
 
         private static byte[] EncryptAes(byte[] nonce, byte[] cek, byte[] message)
         {
-            using (AuthenticatedAesCng aes = new AuthenticatedAesCng())
-            {
-                aes.CngMode = CngChainingMode.Gcm;
+            GcmBlockCipher cipher = new GcmBlockCipher(new AesFastEngine());
+            AeadParameters parameters = new AeadParameters(new KeyParameter(cek), 128, nonce);
+            cipher.Init(true, parameters);
 
-                aes.Key = cek;
+            //Generate Cipher Text With Auth Tag
+            byte[] cipherText = new byte[cipher.GetOutputSize(message.Length)];
+            int len = cipher.ProcessBytes(message, 0, message.Length, cipherText, 0);
+            cipher.DoFinal(cipherText, len);
 
-                aes.IV = nonce;
-
-                using (MemoryStream ms = new MemoryStream())
-                using (IAuthenticatedCryptoTransform encryptor = aes.CreateAuthenticatedEncryptor())
-                using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                {
-                    // Encrypt the secret message
-                    cs.Write(message, 0, message.Length);
-
-                    // Finish the encryption and get the output authentication tag and ciphertext
-                    cs.FlushFinalBlock();
-                    byte[] ciphertext = ms.ToArray();
-
-                    byte[] tag = encryptor.GetTag();
-
-                    return ciphertext.Concat(tag).ToArray();
-                }
-            }
+            //byte[] tag = cipher.GetMac();
+            return cipherText;
         }
 
         public static byte[] HKDFSecondStep(byte[] key, byte[] info, int length)
