@@ -1,8 +1,8 @@
 ﻿<h1 align="center">web-push-csharp</h1>
 
 <p align="center">
-  <a href="https://travis-ci.org/coryjthompson/web-push-csharp">
-    <img src="https://travis-ci.org/coryjthompson/web-push-csharp.svg?branch=master" alt="Travis Build Status" />
+  <a href="https://travis-ci.org/web-push-libs/web-push-csharp">
+    <img src="https://travis-ci.org/web-push-libs/web-push-csharp.svg?branch=master" alt="Travis Build Status" />
   </a>
 </p>
 
