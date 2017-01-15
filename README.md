@@ -117,8 +117,8 @@ retained by the push service (by default, four weeks).
 VapidDetails vapidKeys = VapidHelper.GenerateVapidKeys();
 
 // Prints 2 URL Safe Base64 Encoded Strings
-Console.WriteLine("Public {0}", vapidKeys.publicKey);
-Console.WriteLine("Private {0}", vapidKeys.privateKey);
+Console.WriteLine("Public {0}", vapidKeys.PublicKey);
+Console.WriteLine("Private {0}", vapidKeys.PrivateKey);
 ```
 
 ### Input
@@ -127,7 +127,7 @@ None.
 
 ### Returns
 
-Returns a VapidDetails object with **publicKey** and **privateKey** values populated which are
+Returns a VapidDetails object with **PublicKey** and **PrivateKey** values populated which are
 URL Safe Base64 encoded strings.
 
 > **Note:** You should create these keys once, store them and use them for all
