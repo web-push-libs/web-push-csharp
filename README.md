@@ -40,13 +40,13 @@ var privateKey = @"mryM-krWj_6IsIMGsd8wNFXGBxnx...............";
 
 var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
 var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
-//var gcmApiKey = @"[your key here]";
+//var gcmAPIKey = @"[your key here]";
 
 var webPushClient = new WebPushClient();
 try
 {
 	webPushClient.SendNotification(subscription, "payload", vapidDetails);
-    //webPushClient.SendNotification(subscription, "payload", gcmApiKey);
+    //webPushClient.SendNotification(subscription, "payload", gcmAPIKey);
 }
 catch (WebPushException exception)
 {
@@ -56,7 +56,7 @@ catch (WebPushException exception)
 
 # API Reference
 
-## SendNotification(pushSubscription, payload, vapidDetails|gcmApiKey|options)
+## SendNotification(pushSubscription, payload, vapidDetails|gcmAPIKey|options)
 
 ```csharp
 var subscription = new PushSubscription(pushEndpoint, p256dh, auth);

@@ -28,13 +28,37 @@ namespace WebPush.Test
         {
             WebPushClient client = new WebPushClient();
 
-            string gcmApiKey = @"teststring";
-            client.SetGCMAPIKey(gcmApiKey);
+            string gcmAPIKey = @"teststring";
+            client.SetGCMAPIKey(gcmAPIKey);
             PushSubscription subscription = new PushSubscription(TEST_GCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
             string authorizationHeader = message.Headers.GetValues("Authorization").First();
 
-            Assert.AreEqual("key=" + gcmApiKey, authorizationHeader);
+            Assert.AreEqual("key=" + gcmAPIKey, authorizationHeader);
+        }
+
+        [Test]
+        public void TestGCMAPIKeyInOptions()
+        {
+            WebPushClient client = new WebPushClient();
+
+            string gcmAPIKey = @"teststring";
+            PushSubscription subscription = new PushSubscription(TEST_GCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
+
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options["gcmAPIKey"] = gcmAPIKey;
+            HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload", options);
+            string authorizationHeader = message.Headers.GetValues("Authorization").First();
+
+            Assert.AreEqual("key=" + gcmAPIKey, authorizationHeader);
+
+            // Test previous incorrect casing of gcmAPIKey
+            Dictionary<string, object> options2 = new Dictionary<string, object>();
+            options2["gcmApiKey"] = gcmAPIKey;
+            Assert.Throws<ArgumentException>(delegate
+            {
+                client.GenerateRequestDetails(subscription, "test payload", options2);
+            });
         }
 
         [Test]
@@ -69,8 +93,8 @@ namespace WebPush.Test
             // Ensure that the API key doesn't get added on a service that doesn't accept it.
             WebPushClient client = new WebPushClient();
 
-            string gcmApiKey = @"teststring";
-            client.SetGCMAPIKey(gcmApiKey);
+            string gcmAPIKey = @"teststring";
+            client.SetGCMAPIKey(gcmAPIKey);
             PushSubscription subscription = new PushSubscription(TEST_FCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
 

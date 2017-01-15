@@ -122,15 +122,15 @@ namespace WebPush
                     extraHeaders = headers;
                 }
 
-                if (options.ContainsKey("gcmApiKey"))
+                if (options.ContainsKey("gcmAPIKey"))
                 {
-                    string gcmApiKey = options["gcmApiKey"] as string;
-                    if (gcmApiKey == null)
+                    string gcmAPIKey = options["gcmAPIKey"] as string;
+                    if (gcmAPIKey == null)
                     {
-                        throw new ArgumentException("options.gcmApiKey must be of type string");
+                        throw new ArgumentException("options.gcmAPIKey must be of type string");
                     }
 
-                    currentGCMAPiKey = gcmApiKey;
+                    currentGCMAPiKey = gcmAPIKey;
                 }
 
                 if (options.ContainsKey("vapidDetails"))
@@ -259,11 +259,11 @@ namespace WebPush
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
-        /// <param name="gcmApiKey">The GCM API key</param>
-        public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
+        /// <param name="gcmAPIKey">The GCM API key</param>
+        public void SendNotification(PushSubscription subscription, string payload, string gcmAPIKey)
         {
             Dictionary<string, object> options = new Dictionary<string, object>();
-            options["gcmApiKey"] = gcmApiKey;
+            options["gcmAPIKey"] = gcmAPIKey;
             SendNotification(subscription, payload, options);
         }
     }
