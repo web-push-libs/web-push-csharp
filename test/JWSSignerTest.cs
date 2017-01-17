@@ -46,7 +46,9 @@ namespace WebPush.Test
             byte[] decodedSignature = UrlBase64.Decode(signature);
             int decodedSignatureLength = decodedSignature.Length;
 
-            Assert.AreEqual(66, decodedSignatureLength);
+
+            bool isSignatureLengthValid = decodedSignatureLength == 66 || decodedSignatureLength == 64;
+            Assert.AreEqual(true, isSignatureLengthValid);
         }
     }
 }
