@@ -38,10 +38,17 @@ namespace WebPush.Util
             signer.Init(true, _privateKey);
             BigInteger[] results = signer.GenerateSignature(hashedMessage);
 
-            // Required to be exactly 33 bytes
             // Concated to create signature
-            var a = ByteArrayPadLeft(results[0].ToByteArrayUnsigned(), 33);
-            var b = ByteArrayPadLeft(results[1].ToByteArrayUnsigned(), 33);
+            var a = results[0].ToByteArrayUnsigned();
+            var b = results[1].ToByteArrayUnsigned();
+
+            // a,b are required to be exactly the same length of bytes
+            if (a.Length != b.Length)
+            {
+                int largestLength = Math.Max(a.Length, b.Length);
+                a = ByteArrayPadLeft(a, largestLength);
+                b = ByteArrayPadLeft(b, largestLength);
+            }
             
             string signature = UrlBase64.Encode(a.Concat(b).ToArray());
             return String.Format("{0}.{1}", securedInput, signature);
