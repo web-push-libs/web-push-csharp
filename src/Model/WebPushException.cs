@@ -8,11 +8,13 @@ namespace WebPush
     {
         public HttpStatusCode StatusCode { get; set; }
         public HttpResponseHeaders Headers { get; set; }
+        public PushSubscription PushSubscription { get; set; }
 
-        public WebPushException(string message, HttpStatusCode statusCode, HttpResponseHeaders headers) : base(message)
+        public WebPushException(string message, HttpStatusCode statusCode, HttpResponseHeaders headers, PushSubscription pushSubscription) : base(message)
         {
             StatusCode = statusCode;
             Headers = headers;
+            PushSubscription = pushSubscription;
         }
     }
 }

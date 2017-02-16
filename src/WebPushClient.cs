@@ -235,7 +235,7 @@ namespace WebPush
             HttpResponseMessage response = webTask.Result;
             if (response.StatusCode != System.Net.HttpStatusCode.Created) //201
             {
-                throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers);
+                throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers, subscription);
             }
         }
 
