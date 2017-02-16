@@ -4,6 +4,9 @@
   <a href="https://travis-ci.org/web-push-libs/web-push-csharp">
     <img src="https://travis-ci.org/web-push-libs/web-push-csharp.svg?branch=master" alt="Travis Build Status" />
   </a>
+  <a href="https://www.nuget.org/packages/WebPush/">
+    <img src="https://buildstats.info/nuget/WebPush" alt="Nuget Package Details" />
+  </a>
 </p>
 
 # Why
