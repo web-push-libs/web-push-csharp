@@ -13,12 +13,26 @@ namespace WebPush
         const int DefaultTtl = 2419200;
 
         private string _gcmAPIKey = null;
+        private HttpClient _httpClient = null;
         private VapidDetails _vapidDetails = null;
 
         public WebPushClient()
         {
 
         }
+
+        protected HttpClient httpClient
+        {
+            get
+            {
+                if (_httpClient == null)
+                {
+                    _httpClient = new HttpClient();
+                }
+
+                return _httpClient;
+            }
+        } 
 
         /// <summary>
         /// When sending messages to a GCM endpoint you need to set the GCM API key 
@@ -227,9 +241,7 @@ namespace WebPush
         public void SendNotification(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
         {
             HttpRequestMessage request = GenerateRequestDetails(subscription, payload, options);
-            HttpClient client = new HttpClient();
-
-            Task<HttpResponseMessage> webTask = client.SendAsync(request);
+            Task<HttpResponseMessage> webTask = httpClient.SendAsync(request);
             webTask.Wait();
 
             HttpResponseMessage response = webTask.Result;
