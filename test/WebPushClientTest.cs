@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using WebPush.Util;
+using WebPush;
 
 namespace WebPush.Test
 {
