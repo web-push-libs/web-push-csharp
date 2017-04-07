@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using WebPush;
 using WebPush.Util;
 
 namespace WebPush.Test
