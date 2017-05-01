@@ -38,8 +38,8 @@ namespace WebPush.Util
             ECPublicKeyParameters userPublicKey = ECKeyHelper.GetPublicKey(userKey);
 
             byte[] key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArrayUnsigned();
-            byte[] serverPublicKey = ((ECPublicKeyParameters) serverKeyPair.Public).Q.GetEncoded(false);
-            
+            byte[] serverPublicKey = ((ECPublicKeyParameters)serverKeyPair.Public).Q.GetEncoded(false);
+
             byte[] prk = HKDF(userSecret, key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
             byte[] cek = HKDF(salt, prk, CreateInfoChunk("aesgcm", userKey, serverPublicKey), 16);
             byte[] nonce = HKDF(salt, prk, CreateInfoChunk("nonce", userKey, serverPublicKey), 12);

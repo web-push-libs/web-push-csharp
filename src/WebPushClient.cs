@@ -32,7 +32,7 @@ namespace WebPush
 
                 return _httpClient;
             }
-        } 
+        }
 
         /// <summary>
         /// When sending messages to a GCM endpoint you need to set the GCM API key 
@@ -231,52 +231,52 @@ namespace WebPush
             return request;
         }
 
-		/// <summary>
-		/// To send a push notification call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="options">Options for the GCM API key and vapid keys can be passed in if they are unique for each notification.</param>
-		public void SendNotification(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
-		{
-			SendNotificationAsync(subscription, payload, options).Wait();
-		}
-
-		/// <summary>
-		/// To send a push notification call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="vapidDetails">The vapid details for the notification.</param>
-		public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
-		{
-			SendNotificationAsync(subscription, payload, vapidDetails).Wait();
-		}
-
-		/// <summary>
-		/// To send a push notification call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="gcmAPIKey">The GCM API key</param>
-		public void SendNotification(PushSubscription subscription, string payload, string gcmAPIKey)
-		{
-			SendNotificationAsync(subscription, payload, gcmAPIKey).Wait();
-		}
-
-		/// <summary>
-		/// To send a push notification asyncronously call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="options">Options for the GCM API key and vapid keys can be passed in if they are unique for each notification.</param>
-		public async Task SendNotificationAsync(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
+        /// <summary>
+        /// To send a push notification call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">Options for the GCM API key and vapid keys can be passed in if they are unique for each notification.</param>
+        public void SendNotification(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
         {
-            
+            SendNotificationAsync(subscription, payload, options).Wait();
+        }
+
+        /// <summary>
+        /// To send a push notification call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="vapidDetails">The vapid details for the notification.</param>
+        public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
+        {
+            SendNotificationAsync(subscription, payload, vapidDetails).Wait();
+        }
+
+        /// <summary>
+        /// To send a push notification call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="gcmAPIKey">The GCM API key</param>
+        public void SendNotification(PushSubscription subscription, string payload, string gcmAPIKey)
+        {
+            SendNotificationAsync(subscription, payload, gcmAPIKey).Wait();
+        }
+
+        /// <summary>
+        /// To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">Options for the GCM API key and vapid keys can be passed in if they are unique for each notification.</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
+        {
+
             HttpRequestMessage request = GenerateRequestDetails(subscription, payload, options);
 
             HttpResponseMessage response = await httpClient.SendAsync(request);
@@ -285,31 +285,31 @@ namespace WebPush
             {
                 throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers, subscription);
             }
-            
+
         }
 
-		/// <summary>
-		/// To send a push notification asyncronously call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="vapidDetails">The vapid details for the notification.</param>
-		public async Task SendNotificationAsync(PushSubscription subscription, string payload, VapidDetails vapidDetails)
+        /// <summary>
+        /// To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="vapidDetails">The vapid details for the notification.</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload, VapidDetails vapidDetails)
         {
             Dictionary<string, object> options = new Dictionary<string, object>();
             options["vapidDetails"] = vapidDetails;
             await SendNotificationAsync(subscription, payload, options);
         }
 
-		/// <summary>
-		/// To send a push notification asyncronously call this method with a subscription, optional payload and any options
-		/// Will exception is unsuccessful 
-		/// </summary>
-		/// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
-		/// <param name="payload">The payload you wish to send to the user</param>
-		/// <param name="gcmAPIKey">The GCM API key</param>
-		public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmAPIKey)
+        /// <summary>
+        /// To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        /// Will exception is unsuccessful 
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="gcmAPIKey">The GCM API key</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmAPIKey)
         {
             Dictionary<string, object> options = new Dictionary<string, object>();
             options["gcmAPIKey"] = gcmAPIKey;

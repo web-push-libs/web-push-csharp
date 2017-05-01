@@ -19,14 +19,14 @@ namespace WebPush.Util
             Asn1Object derEncodedKey = new DerOctetString(privateKey);
             Asn1Object keyTypeParameters = new DerTaggedObject(0, new DerObjectIdentifier(@"1.2.840.10045.3.1.7"));
 
-            Asn1Object derSequence = new DerSequence(version,derEncodedKey,keyTypeParameters);
+            Asn1Object derSequence = new DerSequence(version, derEncodedKey, keyTypeParameters);
 
             var base64EncodedDerSequence = Convert.ToBase64String(derSequence.GetDerEncoded());
             var pemKey = "-----BEGIN EC PRIVATE KEY-----\n";
             pemKey += base64EncodedDerSequence;
             pemKey += "\n-----END EC PRIVATE KEY----";
 
-            StringReader reader = new StringReader(pemKey); 
+            StringReader reader = new StringReader(pemKey);
             PemReader pemReader = new PemReader(reader);
             AsymmetricCipherKeyPair keyPair = (AsymmetricCipherKeyPair)pemReader.ReadObject();
 
@@ -48,9 +48,9 @@ namespace WebPush.Util
             StringReader reader = new StringReader(pemKey);
             PemReader pemReader = new PemReader(reader);
             var keyPair = pemReader.ReadObject();
-            return (ECPublicKeyParameters) keyPair;
+            return (ECPublicKeyParameters)keyPair;
         }
-        
+
         public static AsymmetricCipherKeyPair GenerateKeys()
         {
             X9ECParameters ecParameters = NistNamedCurves.GetByName("P-256");

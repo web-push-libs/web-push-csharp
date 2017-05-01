@@ -16,7 +16,7 @@ namespace WebPush.Util
 
         public JWSSigner(ECPrivateKeyParameters privateKey)
         {
-           _privateKey = privateKey;
+            _privateKey = privateKey;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace WebPush.Util
                 a = ByteArrayPadLeft(a, largestLength);
                 b = ByteArrayPadLeft(b, largestLength);
             }
-            
+
             string signature = UrlBase64.Encode(a.Concat(b).ToArray());
             return String.Format("{0}.{1}", securedInput, signature);
         }
