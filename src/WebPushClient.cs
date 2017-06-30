@@ -13,25 +13,10 @@ namespace WebPush
         const int DefaultTtl = 2419200;
 
         private string _gcmAPIKey = null;
-        private HttpClient _httpClient = null;
         private VapidDetails _vapidDetails = null;
 
         public WebPushClient()
         {
-
-        }
-
-        protected HttpClient httpClient
-        {
-            get
-            {
-                if (_httpClient == null)
-                {
-                    _httpClient = new HttpClient();
-                }
-
-                return _httpClient;
-            }
         }
 
         /// <summary>
@@ -81,7 +66,6 @@ namespace WebPush
         /// <param name="privateKey">The private VAPID key as a base64 encoded string</param>
         public void SetVapidDetails(string subject, string publicKey, string privateKey)
         {
-
             SetVapidDetails(new VapidDetails(subject, publicKey, privateKey));
         }
 
@@ -123,7 +107,6 @@ namespace WebPush
                         throw new ArgumentException(key + " is an invalid options. The valid options are" + String.Join(",", validOptionsKeys));
                     }
                 }
-
 
                 if (options.ContainsKey("headers"))
                 {
@@ -211,7 +194,6 @@ namespace WebPush
             }
             else if (currentVapidDetails != null)
             {
-
                 Uri uri = new Uri(subscription.Endpoint);
                 string audience = uri.Scheme + Uri.SchemeDelimiter + uri.Host;
 
@@ -228,6 +210,7 @@ namespace WebPush
             }
 
             request.Headers.Add("Crypto-Key", cryptoKeyHeader);
+
             return request;
         }
 
@@ -276,16 +259,18 @@ namespace WebPush
         /// <param name="options">Options for the GCM API key and vapid keys can be passed in if they are unique for each notification.</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload = null, Dictionary<string, object> options = null)
         {
-
-            HttpRequestMessage request = GenerateRequestDetails(subscription, payload, options);
-
-            HttpResponseMessage response = await httpClient.SendAsync(request);
-
-            if (response.StatusCode != System.Net.HttpStatusCode.Created) //201
+            using (var httpClient = new HttpClient())
             {
-                throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers, subscription);
-            }
+                HttpRequestMessage request = GenerateRequestDetails(subscription, payload, options);
 
+                using (HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false))
+                {
+                    if (response.StatusCode != System.Net.HttpStatusCode.Created) //201
+                    {
+                        throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers, subscription);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -299,7 +284,7 @@ namespace WebPush
         {
             Dictionary<string, object> options = new Dictionary<string, object>();
             options["vapidDetails"] = vapidDetails;
-            await SendNotificationAsync(subscription, payload, options);
+            await SendNotificationAsync(subscription, payload, options).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -313,7 +298,7 @@ namespace WebPush
         {
             Dictionary<string, object> options = new Dictionary<string, object>();
             options["gcmAPIKey"] = gcmAPIKey;
-            await SendNotificationAsync(subscription, payload, options);
+            await SendNotificationAsync(subscription, payload, options).ConfigureAwait(false);
         }
     }
 }
