@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
+using Xunit;
 
 namespace WebPush.Test
 {
-    [TestFixture]
     public class ECKeyHelperTest
     {
         private const string TEST_PUBLIC_KEY =
@@ -18,7 +17,7 @@ namespace WebPush.Test
 
         private const string TEST_PRIVATE_KEY = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
 
-        [Test]
+        [Fact]
         public void TestGetPublicKey()
         {
             byte[] publicKey = UrlBase64.Decode(TEST_PUBLIC_KEY);
@@ -26,10 +25,10 @@ namespace WebPush.Test
 
             string importedPublicKey = UrlBase64.Encode(publicKeyParams.Q.GetEncoded(false));
 
-            Assert.AreEqual(TEST_PUBLIC_KEY, importedPublicKey);
+            Assert.Equal(TEST_PUBLIC_KEY, importedPublicKey);
         }
 
-        [Test]
+        [Fact]
         public void TestGetPrivateKey()
         {
             byte[] privateKey = UrlBase64.Decode(TEST_PRIVATE_KEY);
@@ -37,10 +36,10 @@ namespace WebPush.Test
 
             string importedPrivateKey = UrlBase64.Encode(privateKeyParams.D.ToByteArrayUnsigned());
 
-            Assert.AreEqual(TEST_PRIVATE_KEY, importedPrivateKey);
+            Assert.Equal(TEST_PRIVATE_KEY, importedPrivateKey);
         }
 
-        [Test]
+        [Fact]
         public void TestGenerateKeys()
         {
             AsymmetricCipherKeyPair keys = ECKeyHelper.GenerateKeys();
@@ -51,12 +50,12 @@ namespace WebPush.Test
             int publicKeyLength = publicKey.Length;
             int privateKeyLength = privateKey.Length;
 
-            Assert.AreEqual(65, publicKeyLength);
-            Assert.AreEqual(32, privateKeyLength);
+            Assert.Equal(65, publicKeyLength);
+            Assert.Equal(32, privateKeyLength);
 
 ;        }
 
-        [Test]
+        [Fact]
         public void TestGenerateKeysNoCache()
         {
             AsymmetricCipherKeyPair keys1 = ECKeyHelper.GenerateKeys();
@@ -68,8 +67,8 @@ namespace WebPush.Test
             byte[] publicKey2 = ((ECPublicKeyParameters)keys2.Public).Q.GetEncoded(false);
             byte[] privateKey2 = ((ECPrivateKeyParameters)keys2.Private).D.ToByteArrayUnsigned();
             
-            Assert.IsFalse(publicKey1.SequenceEqual(publicKey2));
-            Assert.IsFalse(privateKey1.SequenceEqual(privateKey2));
+            Assert.False(publicKey1.SequenceEqual(publicKey2));
+            Assert.False(privateKey1.SequenceEqual(privateKey2));
         }
     }
 }

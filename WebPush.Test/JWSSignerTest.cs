@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
+using Xunit;
 
 namespace WebPush.Test
 {
-    [TestFixture]
     public class JWSSignerTest
     {
-        [Test]
+        [Fact]
         public void TestGenerateSignature()
         {
             ECPrivateKeyParameters privateKey = ECKeyHelper.GetPrivateKey(new byte[32]);
@@ -31,7 +30,7 @@ namespace WebPush.Test
 
             string[] tokenParts = token.Split('.');
 
-            Assert.AreEqual(3, tokenParts.Length);
+            Assert.Equal(3, tokenParts.Length);
 
             string encodedHeader = tokenParts[0];
             string encodedPayload = tokenParts[1];
@@ -40,15 +39,15 @@ namespace WebPush.Test
             string decodedHeader = Encoding.UTF8.GetString(UrlBase64.Decode(encodedHeader));
             string decodedPayload = Encoding.UTF8.GetString(UrlBase64.Decode(encodedPayload));
 
-            Assert.AreEqual(@"{""typ"":""JWT"",""alg"":""ES256""}", decodedHeader);
-            Assert.AreEqual(@"{""aud"":""aud"",""exp"":1,""sub"":""subject""}", decodedPayload);
+            Assert.Equal(@"{""typ"":""JWT"",""alg"":""ES256""}", decodedHeader);
+            Assert.Equal(@"{""aud"":""aud"",""exp"":1,""sub"":""subject""}", decodedPayload);
 
             byte[] decodedSignature = UrlBase64.Decode(signature);
             int decodedSignatureLength = decodedSignature.Length;
 
 
             bool isSignatureLengthValid = decodedSignatureLength == 66 || decodedSignatureLength == 64;
-            Assert.AreEqual(true, isSignatureLengthValid);
+            Assert.Equal(true, isSignatureLengthValid);
         }
     }
 }

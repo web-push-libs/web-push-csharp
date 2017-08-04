@@ -16,7 +16,7 @@ namespace WebPush.Util
 {
     public static class Encryptor
     {
-        private static readonly RNGCryptoServiceProvider RandomNumberProvider = new RNGCryptoServiceProvider();
+        private static readonly RandomNumberGenerator RandomNumberProvider = RandomNumberGenerator.Create();
 
         public static EncryptionResult Encrypt(string userKey, string userSecret, string payload)
         {

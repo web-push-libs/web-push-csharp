@@ -1,51 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
 using WebPush.Util;
+using Xunit;
 
 namespace WebPush.Test
 {
-    [TestFixture]
     public class VapidHelperTest
     {
         private const string VALID_AUDIENCE = "http://example.com";
         private const string VALID_SUBJECT = "http://example.com/example";
         private const string VALID_SUBJECT_MAILTO = "mailto:example@example.com";
         
-        [Test]
+        [Fact]
         public void TestGenerateVapidKeys()
         {
             VapidDetails keys = VapidHelper.GenerateVapidKeys();
             byte[] publicKey = UrlBase64.Decode(keys.PublicKey);
             byte[] privateKey = UrlBase64.Decode(keys.PrivateKey);
 
-            Assert.AreEqual(32, privateKey.Length);
-            Assert.AreEqual(65, publicKey.Length);
+            Assert.Equal(32, privateKey.Length);
+            Assert.Equal(65, publicKey.Length);
         }
 
-        [Test]
+        [Fact]
         public void TestGenerateVapidKeysNoCache()
         {
             VapidDetails keys1 = VapidHelper.GenerateVapidKeys();
             VapidDetails keys2 = VapidHelper.GenerateVapidKeys();
 
-            Assert.AreNotEqual(keys1.PublicKey, keys2.PublicKey);
-            Assert.AreNotEqual(keys1.PrivateKey, keys2.PrivateKey);
+            Assert.NotEqual(keys1.PublicKey, keys2.PublicKey);
+            Assert.NotEqual(keys1.PrivateKey, keys2.PrivateKey);
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeaders()
         {
             string publicKey = UrlBase64.Encode(new byte[65]);
             string privatekey = UrlBase64.Encode(new byte[32]);
             Dictionary<string, string> headers = VapidHelper.GetVapidHeaders(VALID_AUDIENCE, VALID_SUBJECT, publicKey, privatekey);
             
-            Assert.IsTrue(headers.ContainsKey("Authorization"));
-            Assert.IsTrue(headers.ContainsKey("Crypto-Key"));
+            Assert.True(headers.ContainsKey("Authorization"));
+            Assert.True(headers.ContainsKey("Crypto-Key"));
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeadersWithMailToSubject()
         {
             string publicKey = UrlBase64.Encode(new byte[65]);
@@ -53,11 +51,11 @@ namespace WebPush.Test
             Dictionary<string, string> headers = VapidHelper.GetVapidHeaders(VALID_AUDIENCE, VALID_SUBJECT_MAILTO, publicKey,
                 privatekey);
 
-            Assert.IsTrue(headers.ContainsKey("Authorization"));
-            Assert.IsTrue(headers.ContainsKey("Crypto-Key"));
+            Assert.True(headers.ContainsKey("Authorization"));
+            Assert.True(headers.ContainsKey("Crypto-Key"));
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeadersAudienceNotAUrl()
         {
             string publicKey = UrlBase64.Encode(new byte[65]);
@@ -70,7 +68,7 @@ namespace WebPush.Test
                 });
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeadersSubjectNotAUrlOrMailTo()
         {
             string publicKey = UrlBase64.Encode(new byte[65]);
@@ -83,7 +81,7 @@ namespace WebPush.Test
                 });
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeadersInvalidPublicKey()
         {
             string publicKey = UrlBase64.Encode(new byte[1]);
@@ -96,7 +94,7 @@ namespace WebPush.Test
                 });
         }
 
-        [Test]
+        [Fact]
         public void TestGetVapidHeadersInvalidPrivateKey()
         {
             string publicKey = UrlBase64.Encode(new byte[65]);

@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using NUnit.Framework;
 using WebPush;
+using Xunit;
 
 namespace WebPush.Test
 {
-    [TestFixture]
     public class WebPushClientTest
     {
         private const string TEST_PUBLIC_KEY =
@@ -21,7 +20,7 @@ namespace WebPush.Test
             @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
 
 
-        [Test]
+        [Fact]
         public void TestSetGCMAPIKey()
         {
             WebPushClient client = new WebPushClient();
@@ -32,10 +31,10 @@ namespace WebPush.Test
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload");
             string authorizationHeader = message.Headers.GetValues("Authorization").First();
 
-            Assert.AreEqual("key=" + gcmAPIKey, authorizationHeader);
+            Assert.Equal("key=" + gcmAPIKey, authorizationHeader);
         }
 
-        [Test]
+        [Fact]
         public void TestGCMAPIKeyInOptions()
         {
             WebPushClient client = new WebPushClient();
@@ -48,7 +47,7 @@ namespace WebPush.Test
             HttpRequestMessage message = client.GenerateRequestDetails(subscription, "test payload", options);
             string authorizationHeader = message.Headers.GetValues("Authorization").First();
 
-            Assert.AreEqual("key=" + gcmAPIKey, authorizationHeader);
+            Assert.Equal("key=" + gcmAPIKey, authorizationHeader);
 
             // Test previous incorrect casing of gcmAPIKey
             Dictionary<string, object> options2 = new Dictionary<string, object>();
@@ -59,7 +58,7 @@ namespace WebPush.Test
             });
         }
 
-        [Test]
+        [Fact]
         public void TestSetGCMAPIKeyEmptyString()
         {
             WebPushClient client = new WebPushClient();
@@ -70,7 +69,7 @@ namespace WebPush.Test
             });
         }
 
-        [Test]
+        [Fact]
         public void TestSetGCMAPIKeyNull()
         {
             WebPushClient client = new WebPushClient();
@@ -85,7 +84,7 @@ namespace WebPush.Test
             Assert.False(message.Headers.TryGetValues("Authorization", out values));
         }
 
-        [Test]
+        [Fact]
         public void TestSetGCMAPiKeyNonGCMPushService()
         {
             // Ensure that the API key doesn't get added on a service that doesn't accept it.
@@ -100,7 +99,7 @@ namespace WebPush.Test
             Assert.False(message.Headers.TryGetValues("Authorization", out values));
         }
 
-        [Test]
+        [Fact]
         public void TestSetVapidDetails()
         {
             WebPushClient client = new WebPushClient();

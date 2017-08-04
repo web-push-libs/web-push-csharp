@@ -31,8 +31,11 @@ namespace WebPush.Util
             string securedInput = SecureInput(header, payload);
             byte[] message = Encoding.UTF8.GetBytes(securedInput);
 
-            SHA256Cng sha256Hasher = new SHA256Cng();
-            byte[] hashedMessage = sha256Hasher.ComputeHash(message);
+            byte[] hashedMessage;
+            using (var sha256Hasher = SHA256.Create())
+            {
+                hashedMessage = sha256Hasher.ComputeHash(message);
+            }
 
             ECDsaSigner signer = new ECDsaSigner();
             signer.Init(true, _privateKey);
