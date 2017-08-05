@@ -7,5 +7,5 @@ install:
   - dotnet restore
 
 script:
-  - dotnet build
-  - dotnet test WebPush.Test/WebPush.Test.csproj
+  - dotnet build --framework=netcoreapp1.0
+  - dotnet test --framework=netcoreapp1.0 WebPush.Test/WebPush.Test.csproj
