@@ -9,16 +9,16 @@ namespace WebPush.Test
         [Fact]
         public void TestBase64UrlDecode()
         {
-            byte[] expected = new byte[3] { 181, 235, 45 };
-            byte[] actual = UrlBase64.Decode(@"test");
+            var expected = new byte[3] {181, 235, 45};
+            var actual = UrlBase64.Decode(@"test");
             Assert.True(actual.SequenceEqual(expected));
         }
 
         [Fact]
         public void TestBase64UrlEncode()
         {
-            string expected = @"test";
-            string actual = UrlBase64.Encode(new byte[3] { 181, 235, 45 });
+            var expected = @"test";
+            var actual = UrlBase64.Encode(new byte[3] {181, 235, 45});
             Assert.Equal(expected, actual);
         }
     }

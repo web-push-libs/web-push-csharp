@@ -1,11 +1,11 @@
-﻿using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Math;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
 
 namespace WebPush.Util
 {
@@ -19,15 +19,15 @@ namespace WebPush.Util
         }
 
         /// <summary>
-        /// Generates a Jws Signature.
+        ///     Generates a Jws Signature.
         /// </summary>
         /// <param name="header"></param>
         /// <param name="payload"></param>
         /// <returns></returns>
         public string GenerateSignature(Dictionary<string, object> header, Dictionary<string, object> payload)
         {
-            string securedInput = SecureInput(header, payload);
-            byte[] message = Encoding.UTF8.GetBytes(securedInput);
+            var securedInput = SecureInput(header, payload);
+            var message = Encoding.UTF8.GetBytes(securedInput);
 
             byte[] hashedMessage;
             using (var sha256Hasher = SHA256.Create())
@@ -35,9 +35,9 @@ namespace WebPush.Util
                 hashedMessage = sha256Hasher.ComputeHash(message);
             }
 
-            ECDsaSigner signer = new ECDsaSigner();
+            var signer = new ECDsaSigner();
             signer.Init(true, _privateKey);
-            BigInteger[] results = signer.GenerateSignature(hashedMessage);
+            var results = signer.GenerateSignature(hashedMessage);
 
             // Concated to create signature
             var a = results[0].ToByteArrayUnsigned();
@@ -46,26 +46,26 @@ namespace WebPush.Util
             // a,b are required to be exactly the same length of bytes
             if (a.Length != b.Length)
             {
-                int largestLength = Math.Max(a.Length, b.Length);
+                var largestLength = Math.Max(a.Length, b.Length);
                 a = ByteArrayPadLeft(a, largestLength);
                 b = ByteArrayPadLeft(b, largestLength);
             }
 
-            string signature = UrlBase64.Encode(a.Concat(b).ToArray());
-            return String.Format("{0}.{1}", securedInput, signature);
+            var signature = UrlBase64.Encode(a.Concat(b).ToArray());
+            return string.Format("{0}.{1}", securedInput, signature);
         }
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
         {
-            string encodeHeader = UrlBase64.Encode(Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(header)));
-            string encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(payload)));
+            var encodeHeader = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
+            var encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
 
-            return String.Format("{0}.{1}", encodeHeader, encodePayload);
+            return string.Format("{0}.{1}", encodeHeader, encodePayload);
         }
 
         private static byte[] ByteArrayPadLeft(byte[] src, int size)
         {
-            byte[] dst = new byte[size];
+            var dst = new byte[size];
             var startAt = dst.Length - src.Length;
             Array.Copy(src, 0, dst, startAt, src.Length);
             return dst;
