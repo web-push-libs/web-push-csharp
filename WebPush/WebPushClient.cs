@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -245,11 +246,12 @@ namespace WebPush
             Dictionary<string, object> options = null)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var response = HttpClient.SendAsync(request);
-            response.Wait();
+            var sendAsyncTask = HttpClient.SendAsync(request);
+            sendAsyncTask.Wait();
 
-            throw new WebPushException(@"Received unexpected response code", response.Result.StatusCode,
-                response.Result.Headers, subscription);
+            var response = sendAsyncTask.Result;
+
+            HandleResponse(response, subscription);
         }
 
         /// <summary>
@@ -296,8 +298,7 @@ namespace WebPush
             var request = GenerateRequestDetails(subscription, payload, options);
             var response = await HttpClient.SendAsync(request);
 
-            throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers,
-                subscription);
+            HandleResponse(response, subscription);
         }
 
         /// <summary>
@@ -327,6 +328,44 @@ namespace WebPush
             var options = new Dictionary<string, object>();
             options["gcmAPIKey"] = gcmApiKey;
             await SendNotificationAsync(subscription, payload, options);
+        }
+
+        /// <summary>
+        /// Handle Web Push responses.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="subscription"></param>
+        private static void HandleResponse(HttpResponseMessage response, PushSubscription subscription)
+        {
+            // Successful
+            if (response.StatusCode == HttpStatusCode.Created)
+            {
+                return;
+            }
+
+            // Error
+            var message = @"Received unexpected response code: " + (int) response.StatusCode;
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    message = "Bad Request";
+                    break;
+
+                case HttpStatusCode.RequestEntityTooLarge:
+                    message = "Payload too large";
+                    break;
+
+                case (HttpStatusCode)429:
+                    message = "Too many request.";
+                    break;
+
+                case HttpStatusCode.NotFound:
+                case HttpStatusCode.Gone:
+                    message = "Subscription no longer valid";
+                    break;
+            }
+
+            throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
         }
     }
 }
