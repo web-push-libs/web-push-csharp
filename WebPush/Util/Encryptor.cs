@@ -8,10 +8,10 @@ using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-// @LogicSoftware
-// Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
 namespace WebPush.Util
 {
+    // @LogicSoftware
+    // Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
     public static class Encryptor
     {
         private static readonly RandomNumberGenerator RandomNumberProvider = RandomNumberGenerator.Create();

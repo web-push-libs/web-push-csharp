@@ -7,10 +7,10 @@ namespace WebPush.Test
 {
     public class ECKeyHelperTest
     {
-        private const string TEST_PUBLIC_KEY =
+        private const string TestPublicKey =
             @"BCvKwB2lbVUYMFAaBUygooKheqcEU-GDrVRnu8k33yJCZkNBNqjZj0VdxQ2QIZa4kV5kpX9aAqyBKZHURm6eG1A";
 
-        private const string TEST_PRIVATE_KEY = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
+        private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
 
         [Fact]
         public void TestGenerateKeys()
@@ -48,23 +48,23 @@ namespace WebPush.Test
         [Fact]
         public void TestGetPrivateKey()
         {
-            var privateKey = UrlBase64.Decode(TEST_PRIVATE_KEY);
+            var privateKey = UrlBase64.Decode(TestPrivateKey);
             var privateKeyParams = ECKeyHelper.GetPrivateKey(privateKey);
 
             var importedPrivateKey = UrlBase64.Encode(privateKeyParams.D.ToByteArrayUnsigned());
 
-            Assert.Equal(TEST_PRIVATE_KEY, importedPrivateKey);
+            Assert.Equal(TestPrivateKey, importedPrivateKey);
         }
 
         [Fact]
         public void TestGetPublicKey()
         {
-            var publicKey = UrlBase64.Decode(TEST_PUBLIC_KEY);
+            var publicKey = UrlBase64.Decode(TestPublicKey);
             var publicKeyParams = ECKeyHelper.GetPublicKey(publicKey);
 
             var importedPublicKey = UrlBase64.Encode(publicKeyParams.Q.GetEncoded(false));
 
-            Assert.Equal(TEST_PUBLIC_KEY, importedPublicKey);
+            Assert.Equal(TestPublicKey, importedPublicKey);
         }
     }
 }

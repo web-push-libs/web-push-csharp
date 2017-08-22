@@ -12,11 +12,11 @@ namespace WebPush
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
 
-        private string _gcmAPIKey;
+        private string _gcmApiKey;
         private HttpClient _httpClient;
         private VapidDetails _vapidDetails;
 
-        protected HttpClient httpClient
+        protected HttpClient HttpClient
         {
             get
             {
@@ -34,21 +34,21 @@ namespace WebPush
         ///     by either calling setGCMAPIKey() or passing in the API key as an option
         ///     to sendNotification()
         /// </summary>
-        /// <param name="apiKey">The API key to send with the GCM request.</param>
-        public void SetGCMAPIKey(string apiKey)
+        /// <param name="gcmApiKey">The API key to send with the GCM request.</param>
+        public void SetGcmApiKey(string gcmApiKey)
         {
-            if (apiKey == null)
+            if (gcmApiKey == null)
             {
-                _gcmAPIKey = null;
+                _gcmApiKey = null;
                 return;
             }
 
-            if (string.IsNullOrEmpty(apiKey))
+            if (string.IsNullOrEmpty(gcmApiKey))
             {
                 throw new ArgumentException(@"The GCM API Key should be a non-empty string or null.");
             }
 
-            _gcmAPIKey = apiKey;
+            _gcmApiKey = gcmApiKey;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace WebPush
                     @"To send a message with a payload, the subscription must have 'auth' and 'p256dh' keys.");
             }
 
-            var currentGCMAPiKey = _gcmAPIKey;
+            var currentGcmApiKey = _gcmApiKey;
             var currentVapidDetails = _vapidDetails;
             var timeToLive = DefaultTtl;
             var extraHeaders = new Dictionary<string, object>();
@@ -137,13 +137,13 @@ namespace WebPush
 
                 if (options.ContainsKey("gcmAPIKey"))
                 {
-                    var gcmAPIKey = options["gcmAPIKey"] as string;
-                    if (gcmAPIKey == null)
+                    var gcmApiKey = options["gcmAPIKey"] as string;
+                    if (gcmApiKey == null)
                     {
                         throw new ArgumentException("options.gcmAPIKey must be of type string");
                     }
 
-                    currentGCMAPiKey = gcmAPIKey;
+                    currentGcmApiKey = gcmApiKey;
                 }
 
                 if (options.ContainsKey("vapidDetails"))
@@ -201,12 +201,12 @@ namespace WebPush
                 request.Content.Headers.ContentLength = 0;
             }
 
-            var isGCM = subscription.Endpoint.StartsWith(@"https://android.googleapis.com/gcm/send");
-            if (isGCM)
+            var isGcm = subscription.Endpoint.StartsWith(@"https://android.googleapis.com/gcm/send");
+            if (isGcm)
             {
-                if (!string.IsNullOrEmpty(currentGCMAPiKey))
+                if (!string.IsNullOrEmpty(currentGcmApiKey))
                 {
-                    request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGCMAPiKey);
+                    request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGcmApiKey);
                 }
             }
             else if (currentVapidDetails != null)
@@ -245,7 +245,7 @@ namespace WebPush
             Dictionary<string, object> options = null)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var response = httpClient.SendAsync(request);
+            var response = HttpClient.SendAsync(request);
             response.Wait();
 
             throw new WebPushException(@"Received unexpected response code", response.Result.StatusCode,
@@ -272,11 +272,11 @@ namespace WebPush
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
-        /// <param name="gcmAPIKey">The GCM API key</param>
-        public void SendNotification(PushSubscription subscription, string payload, string gcmAPIKey)
+        /// <param name="gcmApiKey">The GCM API key</param>
+        public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
         {
             var options = new Dictionary<string, object>();
-            options["gcmAPIKey"] = gcmAPIKey;
+            options["gcmAPIKey"] = gcmApiKey;
             SendNotification(subscription, payload, options);
         }
 
@@ -294,7 +294,7 @@ namespace WebPush
             Dictionary<string, object> options = null)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var response = await httpClient.SendAsync(request);
+            var response = await HttpClient.SendAsync(request);
 
             throw new WebPushException(@"Received unexpected response code", response.StatusCode, response.Headers,
                 subscription);
@@ -321,11 +321,11 @@ namespace WebPush
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
-        /// <param name="gcmAPIKey">The GCM API key</param>
-        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmAPIKey)
+        /// <param name="gcmApiKey">The GCM API key</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey)
         {
             var options = new Dictionary<string, object>();
-            options["gcmAPIKey"] = gcmAPIKey;
+            options["gcmAPIKey"] = gcmApiKey;
             await SendNotificationAsync(subscription, payload, options);
         }
     }
