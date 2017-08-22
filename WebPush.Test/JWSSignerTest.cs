@@ -1,9 +1,6 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Parameters;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
 using Xunit;
 
@@ -44,7 +41,6 @@ namespace WebPush.Test
 
             byte[] decodedSignature = UrlBase64.Decode(signature);
             int decodedSignatureLength = decodedSignature.Length;
-
 
             bool isSignatureLengthValid = decodedSignatureLength == 66 || decodedSignatureLength == 64;
             Assert.Equal(true, isSignatureLengthValid);

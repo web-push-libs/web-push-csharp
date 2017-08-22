@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using WebPush.Util;
 using Xunit;
 
@@ -10,7 +9,7 @@ namespace WebPush.Test
         [Fact]
         public void TestBase64UrlDecode()
         {
-            byte[] expected = new byte[3] {181, 235, 45};
+            byte[] expected = new byte[3] { 181, 235, 45 };
             byte[] actual = UrlBase64.Decode(@"test");
             Assert.True(actual.SequenceEqual(expected));
         }
@@ -19,9 +18,8 @@ namespace WebPush.Test
         public void TestBase64UrlEncode()
         {
             string expected = @"test";
-            string actual = UrlBase64.Encode(new byte[3] {181, 235, 45});
+            string actual = UrlBase64.Encode(new byte[3] { 181, 235, 45 });
             Assert.Equal(expected, actual);
         }
-
     }
 }

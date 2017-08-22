@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Crypto;
+﻿using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using System.Linq;
 using WebPush.Util;
 using Xunit;
 
@@ -44,8 +40,8 @@ namespace WebPush.Test
         {
             AsymmetricCipherKeyPair keys = ECKeyHelper.GenerateKeys();
 
-            byte[] publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
-            byte[] privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
+            byte[] publicKey = ((ECPublicKeyParameters)keys.Public).Q.GetEncoded(false);
+            byte[] privateKey = ((ECPrivateKeyParameters)keys.Private).D.ToByteArrayUnsigned();
 
             int publicKeyLength = publicKey.Length;
             int privateKeyLength = privateKey.Length;
@@ -53,7 +49,8 @@ namespace WebPush.Test
             Assert.Equal(65, publicKeyLength);
             Assert.Equal(32, privateKeyLength);
 
-;        }
+            ;
+        }
 
         [Fact]
         public void TestGenerateKeysNoCache()
@@ -66,7 +63,7 @@ namespace WebPush.Test
 
             byte[] publicKey2 = ((ECPublicKeyParameters)keys2.Public).Q.GetEncoded(false);
             byte[] privateKey2 = ((ECPrivateKeyParameters)keys2.Private).D.ToByteArrayUnsigned();
-            
+
             Assert.False(publicKey1.SequenceEqual(publicKey2));
             Assert.False(privateKey1.SequenceEqual(privateKey2));
         }

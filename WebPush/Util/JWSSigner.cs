@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Math;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
 
 namespace WebPush.Util
 {
@@ -27,7 +26,6 @@ namespace WebPush.Util
         /// <returns></returns>
         public string GenerateSignature(Dictionary<string, object> header, Dictionary<string, object> payload)
         {
-
             string securedInput = SecureInput(header, payload);
             byte[] message = Encoding.UTF8.GetBytes(securedInput);
 

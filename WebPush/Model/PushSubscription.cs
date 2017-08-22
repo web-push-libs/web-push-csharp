@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WebPush
+﻿namespace WebPush
 {
     public class PushSubscription
     {
@@ -14,7 +8,6 @@ namespace WebPush
 
         public PushSubscription()
         {
-
         }
 
         public PushSubscription(string endpoint, string p256dh, string auth)

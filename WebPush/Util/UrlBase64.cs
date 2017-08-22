@@ -11,7 +11,6 @@ namespace WebPush.Util
         /// <returns></returns>
         public static byte[] Decode(string base64)
         {
-
             base64 = base64.Replace('-', '+').Replace('_', '/');
 
             while (base64.Length % 4 != 0)
@@ -21,7 +20,7 @@ namespace WebPush.Util
         }
 
         /// <summary>
-        /// Encodes bytes into url-safe base64 string 
+        /// Encodes bytes into url-safe base64 string
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Crypto;
+﻿using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using System;
+using System.Collections.Generic;
 using WebPush.Util;
 
 namespace WebPush
@@ -32,7 +28,7 @@ namespace WebPush
 
         /// <summary>
         /// This method takes the required VAPID parameters and returns the required
-        /// header to be added to a Web Push Protocol Request. 
+        /// header to be added to a Web Push Protocol Request.
         /// </summary>
         /// <param name="audience">This must be the origin of the push service.</param>
         /// <param name="subject">This should be a URL or a 'mailto:' email address</param>
@@ -91,7 +87,6 @@ namespace WebPush
             {
                 throw new ArgumentException(@"VAPID audience is not a url.");
             }
-
         }
 
         public static void ValidateSubject(string subject)
@@ -130,7 +125,6 @@ namespace WebPush
             }
         }
 
-
         public static void ValidatePrivateKey(string privateKey)
         {
             if (String.IsNullOrEmpty(privateKey))
@@ -139,7 +133,6 @@ namespace WebPush
             }
 
             byte[] decodedPrivateKey = UrlBase64.Decode(privateKey);
-
 
             if (decodedPrivateKey.Length != 32)
             {

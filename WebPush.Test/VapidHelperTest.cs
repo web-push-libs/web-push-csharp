@@ -10,7 +10,7 @@ namespace WebPush.Test
         private const string VALID_AUDIENCE = "http://example.com";
         private const string VALID_SUBJECT = "http://example.com/example";
         private const string VALID_SUBJECT_MAILTO = "mailto:example@example.com";
-        
+
         [Fact]
         public void TestGenerateVapidKeys()
         {
@@ -38,7 +38,7 @@ namespace WebPush.Test
             string publicKey = UrlBase64.Encode(new byte[65]);
             string privatekey = UrlBase64.Encode(new byte[32]);
             Dictionary<string, string> headers = VapidHelper.GetVapidHeaders(VALID_AUDIENCE, VALID_SUBJECT, publicKey, privatekey);
-            
+
             Assert.True(headers.ContainsKey("Authorization"));
             Assert.True(headers.ContainsKey("Crypto-Key"));
         }

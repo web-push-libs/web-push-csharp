@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using WebPush;
 using Xunit;
 
 namespace WebPush.Test
@@ -18,7 +17,6 @@ namespace WebPush.Test
 
         private const string TEST_FCM_ENDPOINT =
             @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
-
 
         [Fact]
         public void TestSetGCMAPIKey()
@@ -103,7 +101,7 @@ namespace WebPush.Test
         public void TestSetVapidDetails()
         {
             WebPushClient client = new WebPushClient();
-            
+
             client.SetVapidDetails("mailto:example@example.com", TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);
 
             PushSubscription subscription = new PushSubscription(TEST_FCM_ENDPOINT, TEST_PUBLIC_KEY, TEST_PRIVATE_KEY);

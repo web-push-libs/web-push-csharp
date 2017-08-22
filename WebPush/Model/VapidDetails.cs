@@ -8,7 +8,6 @@
 
         public VapidDetails()
         {
-
         }
 
         /// <param name="subject">This should be a URL or a 'mailto:' email address</param>
