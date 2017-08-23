@@ -331,7 +331,7 @@ namespace WebPush
         }
 
         /// <summary>
-        /// Handle Web Push responses.
+        ///     Handle Web Push responses.
         /// </summary>
         /// <param name="response"></param>
         /// <param name="subscription"></param>

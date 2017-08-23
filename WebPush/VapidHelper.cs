@@ -10,7 +10,6 @@ namespace WebPush
         /// <summary>
         ///     Generate vapid keys
         /// </summary>
-        /// <returns></returns>
         public static VapidDetails GenerateVapidKeys()
         {
             var results = new VapidDetails();
@@ -20,7 +19,7 @@ namespace WebPush
             var privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
 
             results.PublicKey = UrlBase64.Encode(publicKey);
-            results.PrivateKey = UrlBase64.Encode(privateKey);
+            results.PrivateKey = UrlBase64.Encode(ByteArrayPadLeft(privateKey, 32));
 
             return results;
         }
@@ -145,6 +144,14 @@ namespace WebPush
         {
             var timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
             return (long) timeSpan.TotalSeconds;
+        }
+
+        private static byte[] ByteArrayPadLeft(byte[] src, int size)
+        {
+            var dst = new byte[size];
+            var startAt = dst.Length - src.Length;
+            Array.Copy(src, 0, dst, startAt, src.Length);
+            return dst;
         }
     }
 }
