@@ -2,7 +2,7 @@
 
 namespace WebPush.Util
 {
-    public static class UrlBase64
+    internal static class UrlBase64
     {
         /// <summary>
         ///     Decodes a url-safe base64 string into bytes

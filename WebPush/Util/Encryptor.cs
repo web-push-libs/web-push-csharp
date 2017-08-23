@@ -12,7 +12,7 @@ namespace WebPush.Util
 {
     // @LogicSoftware
     // Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
-    public static class Encryptor
+    internal static class Encryptor
     {
         private static readonly RandomNumberGenerator RandomNumberProvider = RandomNumberGenerator.Create();
 

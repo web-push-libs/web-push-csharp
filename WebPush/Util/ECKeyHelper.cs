@@ -9,7 +9,7 @@ using Org.BouncyCastle.Security;
 
 namespace WebPush.Util
 {
-    public static class ECKeyHelper
+    internal static class ECKeyHelper
     {
         public static ECPrivateKeyParameters GetPrivateKey(byte[] privateKey)
         {

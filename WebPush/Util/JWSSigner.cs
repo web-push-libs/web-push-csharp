@@ -9,7 +9,7 @@ using Org.BouncyCastle.Crypto.Signers;
 
 namespace WebPush.Util
 {
-    public class JWSSigner
+    internal class JWSSigner
     {
         private readonly ECPrivateKeyParameters _privateKey;
 
