@@ -36,6 +36,11 @@
             <dependency id="Microsoft.Net.Http" version="2.2.29" />
             <dependency id="Newtonsoft.Json" version="10.0.1"/>
         </group>
+	<group targetFramework="net47">
+            <dependency id="BouncyCastle" version="1.8.1"/>
+            <dependency id="Microsoft.Net.Http" version="2.2.29" />
+            <dependency id="Newtonsoft.Json" version="10.0.1"/>
+        </group>
     </dependencies>
   </metadata>
 </package>
