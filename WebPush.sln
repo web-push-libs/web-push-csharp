@@ -1,10 +1,17 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPush", "WebPush\WebPush.csproj", "{4CDE5EA4-CEF7-4CA0-B1C7-512D1D355E00}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebPush.Test", "WebPush.Test\WebPush.Test.csproj", "{61890D98-5101-4F64-B4B1-E00351A42133}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00145B67-A35F-46B3-B69B-45ABEB45905A}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		README.md = README.md
+		WebPush.nuspec = WebPush.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,5 +50,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {331EB5B3-39C1-44A0-B1D4-AF44344075D9}
 	EndGlobalSection
 EndGlobal

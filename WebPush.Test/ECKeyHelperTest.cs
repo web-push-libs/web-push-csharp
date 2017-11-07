@@ -25,8 +25,6 @@ namespace WebPush.Test
 
             Assert.Equal(65, publicKeyLength);
             Assert.Equal(32, privateKeyLength);
-
-            ;
         }
 
         [Fact]
