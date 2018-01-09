@@ -20,7 +20,7 @@ namespace WebPush
         private HttpClient _httpClient;
         private VapidDetails _vapidDetails;
 
-        protected virtual HttpClient HttpClient
+        protected HttpClient HttpClient
         {
             get
             {
@@ -31,6 +31,24 @@ namespace WebPush
 
                 return _httpClient;
             }
+        }
+        
+        
+        /// <summary>
+        /// Constructor default
+        /// </summary>
+        public WebPushClient()
+        {
+
+        }
+
+        /// <summary>
+        /// Constructor to set Proxy on HttpClient
+        /// </summary>
+        /// <param name="httpMessageHandler"></param>
+        public WebPushClient(HttpMessageHandler httpMessageHandler)
+        {
+            _httpClient = new HttpClient(httpMessageHandler);
         }
 
         /// <summary>
