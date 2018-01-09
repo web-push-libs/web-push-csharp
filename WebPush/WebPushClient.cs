@@ -32,6 +32,24 @@ namespace WebPush
                 return _httpClient;
             }
         }
+        
+        
+        /// <summary>
+        /// Constructor default
+        /// </summary>
+        public WebPushClient()
+        {
+
+        }
+
+        /// <summary>
+        /// Constructor to set Proxy on HttpClient
+        /// </summary>
+        /// <param name="httpMessageHandler"></param>
+        public WebPushClient(HttpMessageHandler httpMessageHandler)
+        {
+            _httpClient = new HttpClient(httpMessageHandler);
+        }
 
         /// <summary>
         ///     When sending messages to a GCM endpoint you need to set the GCM API key
