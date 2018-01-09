@@ -20,7 +20,7 @@ namespace WebPush
         private HttpClient _httpClient;
         private VapidDetails _vapidDetails;
 
-        protected HttpClient HttpClient
+        protected virtual HttpClient HttpClient
         {
             get
             {
