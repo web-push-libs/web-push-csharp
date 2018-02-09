@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace WebPush.Test
 {
+    [TestClass]
     public class WebPushClientTest
     {
         private const string TestPublicKey =
@@ -17,7 +18,7 @@ namespace WebPush.Test
         private const string TestFcmEndpoint =
             @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
 
-        [Fact]
+        [TestMethod]
         public void TestGcmApiKeyInOptions()
         {
             var client = new WebPushClient();
@@ -30,18 +31,18 @@ namespace WebPush.Test
             var message = client.GenerateRequestDetails(subscription, @"test payload", options);
             var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
 
-            Assert.Equal("key=" + gcmAPIKey, authorizationHeader);
+            Assert.AreEqual("key=" + gcmAPIKey, authorizationHeader);
 
             // Test previous incorrect casing of gcmAPIKey
             var options2 = new Dictionary<string, object>();
             options2[@"gcmApiKey"] = gcmAPIKey;
-            Assert.Throws<ArgumentException>(delegate
+            Assert.ThrowsException<ArgumentException>(delegate
             {
                 client.GenerateRequestDetails(subscription, "test payload", options2);
             });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSetGcmApiKey()
         {
             var client = new WebPushClient();
@@ -52,18 +53,21 @@ namespace WebPush.Test
             var message = client.GenerateRequestDetails(subscription, @"test payload");
             var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
 
-            Assert.Equal(@"key=" + gcmAPIKey, authorizationHeader);
+            Assert.AreEqual(@"key=" + gcmAPIKey, authorizationHeader);
         }
 
-        [Fact]
-        public void TestSetGcmApiKeyEmptyString()
+        [TestMethod]
+        public void TestSetGCMAPIKeyEmptyString()
         {
-            var client = new WebPushClient();
+            WebPushClient client = new WebPushClient();
 
-            Assert.Throws(typeof(ArgumentException), delegate { client.SetGcmApiKey(""); });
+            Assert.ThrowsException<ArgumentException>(delegate
+            {
+                client.SetGcmApiKey("");
+            });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSetGcmApiKeyNonGcmPushService()
         {
             // Ensure that the API key doesn't get added on a service that doesn't accept it.
@@ -75,10 +79,10 @@ namespace WebPush.Test
             var message = client.GenerateRequestDetails(subscription, @"test payload");
 
             IEnumerable<string> values;
-            Assert.False(message.Headers.TryGetValues(@"Authorization", out values));
+            Assert.IsFalse(message.Headers.TryGetValues(@"Authorization", out values));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSetGcmApiKeyNull()
         {
             var client = new WebPushClient();
@@ -90,10 +94,10 @@ namespace WebPush.Test
             var message = client.GenerateRequestDetails(subscription, @"test payload");
 
             IEnumerable<string> values;
-            Assert.False(message.Headers.TryGetValues("Authorization", out values));
+            Assert.IsFalse(message.Headers.TryGetValues("Authorization", out values));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestSetVapidDetails()
         {
             var client = new WebPushClient();
@@ -105,8 +109,8 @@ namespace WebPush.Test
             var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
             var cryptoHeader = message.Headers.GetValues(@"Crypto-Key").First();
 
-            Assert.True(authorizationHeader.StartsWith(@"WebPush "));
-            Assert.True(cryptoHeader.Contains(@"p256ecdsa"));
+            Assert.IsTrue(authorizationHeader.StartsWith(@"WebPush "));
+            Assert.IsTrue(cryptoHeader.Contains(@"p256ecdsa"));
         }
     }
 }

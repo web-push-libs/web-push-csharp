@@ -1,16 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WebPush.Util;
-using Xunit;
 
 namespace WebPush.Test
 {
+    [TestClass]
     public class JWSSignerTest
     {
-        [Fact]
+        private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
+
+        [TestMethod]
         public void TestGenerateSignature()
         {
-            var privateKey = ECKeyHelper.GetPrivateKey(new byte[32]);
+            var decodedPrivateKey = UrlBase64.Decode(TestPrivateKey);
+            var privateKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
 
             var header = new Dictionary<string, object>();
             header.Add("typ", "JWT");
@@ -26,7 +30,7 @@ namespace WebPush.Test
 
             var tokenParts = token.Split('.');
 
-            Assert.Equal(3, tokenParts.Length);
+            Assert.AreEqual(3, tokenParts.Length);
 
             var encodedHeader = tokenParts[0];
             var encodedPayload = tokenParts[1];
@@ -35,14 +39,14 @@ namespace WebPush.Test
             var decodedHeader = Encoding.UTF8.GetString(UrlBase64.Decode(encodedHeader));
             var decodedPayload = Encoding.UTF8.GetString(UrlBase64.Decode(encodedPayload));
 
-            Assert.Equal(@"{""typ"":""JWT"",""alg"":""ES256""}", decodedHeader);
-            Assert.Equal(@"{""aud"":""aud"",""exp"":1,""sub"":""subject""}", decodedPayload);
+            Assert.AreEqual(@"{""typ"":""JWT"",""alg"":""ES256""}", decodedHeader);
+            Assert.AreEqual(@"{""aud"":""aud"",""exp"":1,""sub"":""subject""}", decodedPayload);
 
             var decodedSignature = UrlBase64.Decode(signature);
             var decodedSignatureLength = decodedSignature.Length;
 
             var isSignatureLengthValid = decodedSignatureLength == 66 || decodedSignatureLength == 64;
-            Assert.Equal(true, isSignatureLengthValid);
+            Assert.AreEqual(true, isSignatureLengthValid);
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -14,8 +15,6 @@ namespace WebPush.Util
     // Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
     internal static class Encryptor
     {
-        private static readonly RandomNumberGenerator RandomNumberProvider = RandomNumberGenerator.Create();
-
         public static EncryptionResult Encrypt(string userKey, string userSecret, string payload)
         {
             var userKeyBytes = UrlBase64.Decode(userKey);
@@ -56,7 +55,8 @@ namespace WebPush.Util
         private static byte[] GenerateSalt(int length)
         {
             var salt = new byte[length];
-            RandomNumberProvider.GetBytes(salt);
+            System.Random random = new System.Random();
+            random.NextBytes(salt);
             return salt;
         }
 
@@ -85,7 +85,7 @@ namespace WebPush.Util
 
         public static byte[] HKDFSecondStep(byte[] key, byte[] info, int length)
         {
-            var hmac = new HMACSHA256(key);
+            var hmac = new HmacSha256(key);
             var infoAndOne = info.Concat(new byte[] {0x01}).ToArray();
             var result = hmac.ComputeHash(infoAndOne);
 
@@ -98,7 +98,7 @@ namespace WebPush.Util
 
         public static byte[] HKDF(byte[] salt, byte[] prk, byte[] info, int length)
         {
-            var hmac = new HMACSHA256(salt);
+            var hmac = new HmacSha256(salt);
             var key = hmac.ComputeHash(prk);
 
             return HKDFSecondStep(key, info, length);
@@ -123,6 +123,26 @@ namespace WebPush.Util
             output.AddRange(ConvertInt(senderPublicKey.Length));
             output.AddRange(senderPublicKey);
             return output.ToArray();
+        }
+    }
+
+    public class HmacSha256
+    {
+        private readonly HMac _hmac;
+
+        public HmacSha256(byte[] key)
+        {
+            _hmac = new HMac(new Sha256Digest());
+            _hmac.Init(new KeyParameter(key));
+        }
+
+        public byte[] ComputeHash(byte[] value)
+        {
+            byte[] resBuf = new byte[_hmac.GetMacSize()];
+            _hmac.BlockUpdate(value, 0, value.Length);
+            _hmac.DoFinal(resBuf, 0);
+
+            return resBuf;
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
-using Xunit;
 
 namespace WebPush.Test
 {
+    [TestClass]
     public class ECKeyHelperTest
     {
         private const string TestPublicKey =
@@ -12,7 +13,7 @@ namespace WebPush.Test
 
         private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
 
-        [Fact]
+        [TestMethod]
         public void TestGenerateKeys()
         {
             var keys = ECKeyHelper.GenerateKeys();
@@ -23,11 +24,11 @@ namespace WebPush.Test
             var publicKeyLength = publicKey.Length;
             var privateKeyLength = privateKey.Length;
 
-            Assert.Equal(65, publicKeyLength);
-            Assert.Equal(32, privateKeyLength);
+            Assert.AreEqual(65, publicKeyLength);
+            Assert.AreEqual(32, privateKeyLength);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGenerateKeysNoCache()
         {
             var keys1 = ECKeyHelper.GenerateKeys();
@@ -39,11 +40,11 @@ namespace WebPush.Test
             var publicKey2 = ((ECPublicKeyParameters) keys2.Public).Q.GetEncoded(false);
             var privateKey2 = ((ECPrivateKeyParameters) keys2.Private).D.ToByteArrayUnsigned();
 
-            Assert.False(publicKey1.SequenceEqual(publicKey2));
-            Assert.False(privateKey1.SequenceEqual(privateKey2));
+            Assert.IsFalse(publicKey1.SequenceEqual(publicKey2));
+            Assert.IsFalse(privateKey1.SequenceEqual(privateKey2));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetPrivateKey()
         {
             var privateKey = UrlBase64.Decode(TestPrivateKey);
@@ -51,10 +52,10 @@ namespace WebPush.Test
 
             var importedPrivateKey = UrlBase64.Encode(privateKeyParams.D.ToByteArrayUnsigned());
 
-            Assert.Equal(TestPrivateKey, importedPrivateKey);
+            Assert.AreEqual(TestPrivateKey, importedPrivateKey);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetPublicKey()
         {
             var publicKey = UrlBase64.Decode(TestPublicKey);
@@ -62,7 +63,7 @@ namespace WebPush.Test
 
             var importedPublicKey = UrlBase64.Encode(publicKeyParams.Q.GetEncoded(false));
 
-            Assert.Equal(TestPublicKey, importedPublicKey);
+            Assert.AreEqual(TestPublicKey, importedPublicKey);
         }
     }
 }

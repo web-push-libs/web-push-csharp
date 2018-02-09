@@ -1,97 +1,105 @@
 ﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WebPush.Util;
-using Xunit;
 
 namespace WebPush.Test
 {
+    [TestClass]
     public class VapidHelperTest
     {
         private const string ValidAudience = @"http://example.com";
         private const string ValidSubject = @"http://example.com/example";
         private const string ValidSubjectMailto = @"mailto:example@example.com";
 
-        [Fact]
+        private const string TestPublicKey =
+            @"BCvKwB2lbVUYMFAaBUygooKheqcEU-GDrVRnu8k33yJCZkNBNqjZj0VdxQ2QIZa4kV5kpX9aAqyBKZHURm6eG1A";
+
+        private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
+
+        [TestMethod]
         public void TestGenerateVapidKeys()
         {
             var keys = VapidHelper.GenerateVapidKeys();
             var publicKey = UrlBase64.Decode(keys.PublicKey);
             var privateKey = UrlBase64.Decode(keys.PrivateKey);
 
-            Assert.Equal(32, privateKey.Length);
-            Assert.Equal(65, publicKey.Length);
+            Assert.AreEqual(32, privateKey.Length);
+            Assert.AreEqual(65, publicKey.Length);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGenerateVapidKeysNoCache()
         {
             var keys1 = VapidHelper.GenerateVapidKeys();
             var keys2 = VapidHelper.GenerateVapidKeys();
 
-            Assert.NotEqual(keys1.PublicKey, keys2.PublicKey);
-            Assert.NotEqual(keys1.PrivateKey, keys2.PrivateKey);
+            Assert.AreNotEqual(keys1.PublicKey, keys2.PublicKey);
+            Assert.AreNotEqual(keys1.PrivateKey, keys2.PrivateKey);
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeaders()
         {
-            var publicKey = UrlBase64.Encode(new byte[65]);
-            var privatekey = UrlBase64.Encode(new byte[32]);
+            var publicKey = TestPublicKey;
+            var privatekey = TestPrivateKey;
             var headers = VapidHelper.GetVapidHeaders(ValidAudience, ValidSubject, publicKey, privatekey);
 
-            Assert.True(headers.ContainsKey(@"Authorization"));
-            Assert.True(headers.ContainsKey(@"Crypto-Key"));
+            Assert.IsTrue(headers.ContainsKey(@"Authorization"));
+            Assert.IsTrue(headers.ContainsKey(@"Crypto-Key"));
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeadersAudienceNotAUrl()
         {
-            var publicKey = UrlBase64.Encode(new byte[65]);
-            var privatekey = UrlBase64.Encode(new byte[32]);
-
-            Assert.Throws(typeof(ArgumentException),
-                delegate { VapidHelper.GetVapidHeaders(@"invalid audience", ValidSubject, publicKey, privatekey); });
+            var publicKey = TestPublicKey;
+            var privatekey = TestPrivateKey;
+            Assert.ThrowsException<ArgumentException>(
+                delegate
+                {
+                    VapidHelper.GetVapidHeaders("invalid audience", ValidSubjectMailto, publicKey, privatekey);
+                });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeadersInvalidPrivateKey()
         {
             var publicKey = UrlBase64.Encode(new byte[65]);
             var privatekey = UrlBase64.Encode(new byte[1]);
 
-            Assert.Throws(typeof(ArgumentException),
+            Assert.ThrowsException<ArgumentException>(
                 delegate { VapidHelper.GetVapidHeaders(ValidAudience, ValidSubject, publicKey, privatekey); });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeadersInvalidPublicKey()
         {
             var publicKey = UrlBase64.Encode(new byte[1]);
             var privatekey = UrlBase64.Encode(new byte[32]);
 
-            Assert.Throws(typeof(ArgumentException),
+            Assert.ThrowsException<ArgumentException>(
                 delegate { VapidHelper.GetVapidHeaders(ValidAudience, ValidSubject, publicKey, privatekey); });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeadersSubjectNotAUrlOrMailTo()
         {
-            var publicKey = UrlBase64.Encode(new byte[65]);
-            var privatekey = UrlBase64.Encode(new byte[32]);
+            var publicKey = TestPublicKey;
+            var privatekey = TestPrivateKey;
 
-            Assert.Throws(typeof(ArgumentException),
+            Assert.ThrowsException<ArgumentException>(
                 delegate { VapidHelper.GetVapidHeaders(ValidAudience, @"invalid subject", publicKey, privatekey); });
         }
 
-        [Fact]
+        [TestMethod]
         public void TestGetVapidHeadersWithMailToSubject()
         {
-            var publicKey = UrlBase64.Encode(new byte[65]);
-            var privatekey = UrlBase64.Encode(new byte[32]);
+            var publicKey = TestPublicKey;
+            var privatekey = TestPrivateKey;
             var headers = VapidHelper.GetVapidHeaders(ValidAudience, ValidSubjectMailto, publicKey,
                 privatekey);
 
-            Assert.True(headers.ContainsKey(@"Authorization"));
-            Assert.True(headers.ContainsKey(@"Crypto-Key"));
+            Assert.IsTrue(headers.ContainsKey(@"Authorization"));
+            Assert.IsTrue(headers.ContainsKey(@"Crypto-Key"));
         }
     }
 }

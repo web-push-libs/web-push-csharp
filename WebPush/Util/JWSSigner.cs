@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
 
@@ -29,11 +29,7 @@ namespace WebPush.Util
             var securedInput = SecureInput(header, payload);
             var message = Encoding.UTF8.GetBytes(securedInput);
 
-            byte[] hashedMessage;
-            using (var sha256Hasher = SHA256.Create())
-            {
-                hashedMessage = sha256Hasher.ComputeHash(message);
-            }
+            byte[] hashedMessage =sha256Hash(message);
 
             var signer = new ECDsaSigner();
             signer.Init(true, _privateKey);
@@ -69,6 +65,15 @@ namespace WebPush.Util
             var startAt = dst.Length - src.Length;
             Array.Copy(src, 0, dst, startAt, src.Length);
             return dst;
+        }
+
+        private static byte[] sha256Hash(byte[] message)
+        {
+            Sha256Digest sha256Digest = new Sha256Digest();
+            sha256Digest.BlockUpdate(message, 0, message.Length);
+            byte[] hash = new byte[sha256Digest.GetDigestSize()];
+            sha256Digest.DoFinal(hash, 0);
+            return hash;
         }
     }
 }
