@@ -70,7 +70,7 @@ namespace WebPush.Util
 
         private static byte[] EncryptAes(byte[] nonce, byte[] cek, byte[] message)
         {
-            var cipher = new GcmBlockCipher(new AesFastEngine());
+            var cipher = new GcmBlockCipher(new AesEngine());
             var parameters = new AeadParameters(new KeyParameter(cek), 128, nonce);
             cipher.Init(true, parameters);
 
