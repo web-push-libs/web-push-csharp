@@ -1,7 +1,7 @@
 language: csharp
 dist: trusty
 mono: none
-dotnet: 1.0.4
+dotnet: 2.0.0
 
 install:
   - dotnet restore
@@ -9,3 +9,5 @@ install:
 script:
   - dotnet build --framework=netcoreapp1.0
   - dotnet test --framework=netcoreapp1.0 WebPush.Test/WebPush.Test.csproj
+  - dotnet build --framework=netcoreapp2.0
+  - dotnet test --framework=netcoreapp2.0 WebPush.Test/WebPush.Test.csproj
