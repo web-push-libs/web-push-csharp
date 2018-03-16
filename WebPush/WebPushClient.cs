@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -93,8 +93,12 @@ namespace WebPush
         ///     notification.
         /// </param>
         /// <returns>A HttpRequestMessage object that can be sent.</returns>
-        public HttpRequestMessage GenerateRequestDetails(PushSubscription subscription, string payload,
-            Dictionary<string, object> options = null)
+        public HttpRequestMessage GenerateRequestDetails(
+            PushSubscription subscription,
+            string payload,
+            Dictionary<string, object> options = null,
+            string googleFirebaseAppId = null,
+            string googleFirebaseSenderId = null)
         {
             if (!Uri.IsWellFormedUriString(subscription.Endpoint, UriKind.Absolute))
             {
@@ -204,22 +208,25 @@ namespace WebPush
                 request.Content.Headers.ContentLength = 0;
             }
 
-            var isGcm = subscription.Endpoint.StartsWith(@"https://android.googleapis.com/gcm/send");
-            if (isGcm)
-            {
-                if (!string.IsNullOrEmpty(currentGcmApiKey))
-                {
-                    request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGcmApiKey);
-                }
-            }
-            else if (currentVapidDetails != null)
-            {
-                var uri = new Uri(subscription.Endpoint);
-                var audience = uri.Scheme + @"://" + uri.Host;
+            var uri = new Uri(subscription.Endpoint);
+            var audience = uri.Scheme + @"://" + uri.Host;
 
-                var vapidHeaders = VapidHelper.GetVapidHeaders(audience, currentVapidDetails.Subject,
-                    currentVapidDetails.PublicKey, currentVapidDetails.PrivateKey);
+
+            var vapidHeaders = VapidHelper.GetVapidHeaders(audience, currentVapidDetails.Subject, currentVapidDetails.PublicKey, currentVapidDetails.PrivateKey);
+            var serverKey = string.Format("key={0}", googleFirebaseAppId);
+            var senderId = string.Format("id={0}", googleFirebaseSenderId);
+            if (audience.StartsWith(@"https://updates.push.services.mozilla.com"))
+            {
                 request.Headers.Add(@"Authorization", vapidHeaders["Authorization"]);
+            }
+            else
+            {
+                request.Headers.TryAddWithoutValidation("Authorization", serverKey);
+                request.Headers.TryAddWithoutValidation("Sender", senderId);
+            }
+            var isGcm = subscription.Endpoint.StartsWith(@"https://fcm.googleapis.com/fcm/send");
+            if (!isGcm && currentVapidDetails != null)
+            {
                 if (string.IsNullOrEmpty(cryptoKeyHeader))
                 {
                     cryptoKeyHeader = vapidHeaders["Crypto-Key"];
@@ -244,10 +251,14 @@ namespace WebPush
         ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
         ///     notification.
         /// </param>
-        public void SendNotification(PushSubscription subscription, string payload = null,
-            Dictionary<string, object> options = null)
+        public void SendNotification(
+            PushSubscription subscription,
+            string payload = null,
+            Dictionary<string, object> options = null,
+            string googleFirebaseAppId = null,
+            string googleFirebaseSenderId = null)
         {
-            var request = GenerateRequestDetails(subscription, payload, options);
+            var request = GenerateRequestDetails(subscription, payload, options, googleFirebaseAppId, googleFirebaseSenderId);
             var sendAsyncTask = HttpClient.SendAsync(request);
             sendAsyncTask.Wait();
 
@@ -268,6 +279,13 @@ namespace WebPush
             var options = new Dictionary<string, object>();
             options["vapidDetails"] = vapidDetails;
             SendNotification(subscription, payload, options);
+        }
+
+        public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails, string googleFirebaseAppId, string googleFirebaseSenderId)
+        {
+            var options = new Dictionary<string, object>();
+            options["vapidDetails"] = vapidDetails;
+            SendNotification(subscription, payload, options, googleFirebaseAppId, googleFirebaseSenderId);
         }
 
         /// <summary>
