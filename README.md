@@ -27,7 +27,7 @@ Installation is simple, just install via NuGet.
 
 # Demo Project
 
-There is a ASP.NET MVC Core demo project located at [here](https://github.com/coryjthompson/WebPushDemo)
+There is a ASP.NET MVC Core demo project located [here](https://github.com/coryjthompson/WebPushDemo)
 
 # Usage
 
