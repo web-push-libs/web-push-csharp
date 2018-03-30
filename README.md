@@ -25,6 +25,10 @@ Installation is simple, just install via NuGet.
 
     Install-Package WebPush
 
+# Demo Project
+
+There is a ASP.NET MVC Core demo project located at [here](https://github.com/coryjthompson/WebPushDemo)
+
 # Usage
 
 The common use case for this library is an application server using
