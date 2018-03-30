@@ -249,19 +249,23 @@ This method returns a Dictionary<string, string> intented to be headers of a web
    <td>Opera</td>
 
    <!-- Push without payloads support-->
-   <td>✓ v39+ <strong>*</strong></td>
-
+   <td>✓ v39+ Android <strong>*</strong>
+       <br/>
+       <br/>
+       ✓ v42+ Desktop
+</td>
    <!-- Push with payload support -->
-   <td>✓ v39+ <strong>*</strong></td>
+   <td>✓ v39+ Android <strong>*</strong>
+       <br/>
+       <br/>
+       ✓ v42+ Desktop
+</td>
 
    <!-- VAPID Support -->
-   <td>✗</td>
+   <td>✓ v42+ Desktop</td>
 
    <td>
-   <strong>*</strong> Opera supports push on Android but not on desktop.
-   <br />
-   <br />
-   The `gcm_sender_id` is needed to get a push subscription.
+   <strong>*</strong> The `gcm_sender_id` is needed to get a push subscription.
    </td>
    </tr>
 
