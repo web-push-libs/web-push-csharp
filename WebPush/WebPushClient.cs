@@ -17,7 +17,13 @@ namespace WebPush
 
         private string _gcmApiKey;
         private HttpClient _httpClient;
+        private readonly HttpClientHandler _httpClientHandler;
         private VapidDetails _vapidDetails;
+
+        public WebPushClient(HttpClientHandler httpClientHandler=null)
+        {
+            _httpClientHandler = httpClientHandler;
+        }
 
         protected HttpClient HttpClient
         {
@@ -25,7 +31,10 @@ namespace WebPush
             {
                 if (_httpClient == null)
                 {
-                    _httpClient = new HttpClient();
+                    _httpClient = _httpClientHandler == null
+                        ? new HttpClient()
+                        : new HttpClient(_httpClientHandler);
+
                 }
 
                 return _httpClient;
