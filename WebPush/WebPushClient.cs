@@ -10,7 +10,7 @@ using WebPush.Util;
 [assembly: InternalsVisibleTo("WebPush.Test")]
 namespace WebPush
 {
-    public class WebPushClient
+    public class WebPushClient : IDisposable
     {
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
@@ -23,6 +23,14 @@ namespace WebPush
         public WebPushClient(HttpClientHandler httpClientHandler=null)
         {
             _httpClientHandler = httpClientHandler;
+        }
+        
+        public void Dispose()
+        {
+            if (_httpClient != null)
+            {
+                _httpClient.Dispose();
+            }
         }
 
         protected HttpClient HttpClient
