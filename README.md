@@ -274,6 +274,20 @@ This method returns a Dictionary<string, string> intented to be headers of a web
    </tr>
 
    <tr>
+   <td>Edge</td>
+
+   <!-- Push without payloads support-->
+   <td>✓ v17+</td>
+
+   <!-- Push with payload support -->
+   <td>✓ v17+</td>
+
+   <!-- VAPID Support -->
+   <td>✓ v17+</td>
+
+   <td></td>
+   </tr>
+   <tr>
    <td>Safari</td>
 
    <!-- Push without payloads support-->
