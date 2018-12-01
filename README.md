@@ -220,19 +220,6 @@ This method returns a Dictionary<string, string> intented to be headers of a web
    <td>✓ v52+</td>
    <td>In v51 and less, the `gcm_sender_id` is needed to get a push subscription.</td>
    </tr>
-   <tr>
-   <td>Edge</td>
-   <!-- Push without payloads support-->
-   <td>✗</td>
-
-   <!-- Push with payload support -->
-   <td>✗</td>
-
-   <!-- VAPID Support -->
-   <td>✗</td>
-
-   <td></td>
-   </tr>
 
    <tr>
    <td>Firefox</td>
