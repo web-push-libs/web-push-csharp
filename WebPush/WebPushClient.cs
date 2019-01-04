@@ -272,10 +272,11 @@ namespace WebPush
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
         /// <param name="vapidDetails">The vapid details for the notification.</param>
-        public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
+        public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails, int? ttl = null)
         {
             var options = new Dictionary<string, object>();
             options["vapidDetails"] = vapidDetails;
+            if (ttl.HasValue) options["TTL"] = ttl.Value;
             SendNotification(subscription, payload, options);
         }
 
@@ -286,10 +287,11 @@ namespace WebPush
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
         /// <param name="gcmApiKey">The GCM API key</param>
-        public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
+        public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey, int? ttl = null)
         {
             var options = new Dictionary<string, object>();
             options["gcmAPIKey"] = gcmApiKey;
+            if (ttl.HasValue) options["TTL"] = ttl.Value;
             SendNotification(subscription, payload, options);
         }
 
@@ -320,10 +322,11 @@ namespace WebPush
         /// <param name="payload">The payload you wish to send to the user</param>
         /// <param name="vapidDetails">The vapid details for the notification.</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload,
-            VapidDetails vapidDetails)
+            VapidDetails vapidDetails, int? ttl = null)
         {
             var options = new Dictionary<string, object>();
             options["vapidDetails"] = vapidDetails;
+            if (ttl.HasValue) options["TTL"] = ttl.Value;
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -334,10 +337,11 @@ namespace WebPush
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
         /// <param name="payload">The payload you wish to send to the user</param>
         /// <param name="gcmApiKey">The GCM API key</param>
-        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey)
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey, int? ttl = null)
         {
             var options = new Dictionary<string, object>();
             options["gcmAPIKey"] = gcmApiKey;
+            if (ttl.HasValue) options["TTL"] = ttl.Value;
             await SendNotificationAsync(subscription, payload, options);
         }
 
