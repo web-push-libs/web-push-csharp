@@ -346,7 +346,7 @@ namespace WebPush
         /// </summary>
         /// <param name="response"></param>
         /// <param name="subscription"></param>
-        private static void HandleResponse(HttpResponseMessage response, PushSubscription subscription)
+        public static void HandleResponse(HttpResponseMessage response, PushSubscription subscription)
         {
             // Successful
             if (response.StatusCode == HttpStatusCode.Created)
