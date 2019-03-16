@@ -49,9 +49,9 @@ namespace WebPush
                 }
 
                 _isHttpClientInternallyCreated = true;
-                _httpClient = (_httpClient = _httpClientHandler == null
+                _httpClient = _httpClientHandler == null
                     ? new HttpClient()
-                    : new HttpClient(_httpClientHandler));
+                    : new HttpClient(_httpClientHandler);
 
                 return _httpClient;
             }
