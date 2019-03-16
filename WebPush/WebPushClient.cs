@@ -11,7 +11,7 @@ using WebPush.Util;
 
 namespace WebPush
 {
-    public class WebPushClient
+    public class WebPushClient : IDisposable
     {
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
@@ -20,6 +20,9 @@ namespace WebPush
         private string _gcmApiKey;
         private HttpClient _httpClient;
         private VapidDetails _vapidDetails;
+
+        // Used so we only cleanup internally created http clients
+        private bool _isHttpClientInternallyCreated;
 
         public WebPushClient()
         {
@@ -36,10 +39,23 @@ namespace WebPush
             _httpClientHandler = httpClientHandler;
         }
 
-        protected HttpClient HttpClient =>
-            _httpClient ?? (_httpClient = _httpClientHandler == null
-                ? new HttpClient()
-                : new HttpClient(_httpClientHandler));
+        protected HttpClient HttpClient
+        {
+            get
+            {
+                if (_httpClient != null)
+                {
+                    return _httpClient;
+                }
+
+                _isHttpClientInternallyCreated = true;
+                _httpClient = (_httpClient = _httpClientHandler == null
+                    ? new HttpClient()
+                    : new HttpClient(_httpClientHandler));
+
+                return _httpClient;
+            }
+        }
 
         /// <summary>
         ///     When sending messages to a GCM endpoint you need to set the GCM API key
@@ -360,6 +376,15 @@ namespace WebPush
             }
 
             throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
+        }
+        
+        public void Dispose()
+        {
+            if (_httpClient != null && _isHttpClientInternallyCreated)
+            {
+                _httpClient.Dispose();
+                _httpClient = null;
+            }
         }
     }
 }
