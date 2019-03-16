@@ -9,11 +9,11 @@ using Org.BouncyCastle.Crypto.Signers;
 
 namespace WebPush.Util
 {
-    internal class JWSSigner
+    internal class JwsSigner
     {
         private readonly ECPrivateKeyParameters _privateKey;
 
-        public JWSSigner(ECPrivateKeyParameters privateKey)
+        public JwsSigner(ECPrivateKeyParameters privateKey)
         {
             _privateKey = privateKey;
         }
@@ -29,7 +29,7 @@ namespace WebPush.Util
             var securedInput = SecureInput(header, payload);
             var message = Encoding.UTF8.GetBytes(securedInput);
 
-            byte[] hashedMessage =sha256Hash(message);
+            var hashedMessage = Sha256Hash(message);
 
             var signer = new ECDsaSigner();
             signer.Init(true, _privateKey);
@@ -48,7 +48,7 @@ namespace WebPush.Util
             }
 
             var signature = UrlBase64.Encode(a.Concat(b).ToArray());
-            return string.Format("{0}.{1}", securedInput, signature);
+            return $"{securedInput}.{signature}";
         }
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
@@ -56,7 +56,7 @@ namespace WebPush.Util
             var encodeHeader = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
             var encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
 
-            return string.Format("{0}.{1}", encodeHeader, encodePayload);
+            return $"{encodeHeader}.{encodePayload}";
         }
 
         private static byte[] ByteArrayPadLeft(byte[] src, int size)
@@ -67,11 +67,11 @@ namespace WebPush.Util
             return dst;
         }
 
-        private static byte[] sha256Hash(byte[] message)
+        private static byte[] Sha256Hash(byte[] message)
         {
-            Sha256Digest sha256Digest = new Sha256Digest();
+            var sha256Digest = new Sha256Digest();
             sha256Digest.BlockUpdate(message, 0, message.Length);
-            byte[] hash = new byte[sha256Digest.GetDigestSize()];
+            var hash = new byte[sha256Digest.GetDigestSize()];
             sha256Digest.DoFinal(hash, 0);
             return hash;
         }

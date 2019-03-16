@@ -55,7 +55,7 @@ namespace WebPush.Util
         private static byte[] GenerateSalt(int length)
         {
             var salt = new byte[length];
-            System.Random random = new System.Random();
+            var random = new Random();
             random.NextBytes(salt);
             return salt;
         }
@@ -93,6 +93,7 @@ namespace WebPush.Util
             {
                 Array.Resize(ref result, length);
             }
+
             return result;
         }
 
@@ -111,6 +112,7 @@ namespace WebPush.Util
             {
                 Array.Reverse(output);
             }
+
             return output;
         }
 
@@ -138,7 +140,7 @@ namespace WebPush.Util
 
         public byte[] ComputeHash(byte[] value)
         {
-            byte[] resBuf = new byte[_hmac.GetMacSize()];
+            var resBuf = new byte[_hmac.GetMacSize()];
             _hmac.BlockUpdate(value, 0, value.Length);
             _hmac.DoFinal(resBuf, 0);
 

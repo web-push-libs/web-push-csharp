@@ -15,8 +15,8 @@ namespace WebPush
             var results = new VapidDetails();
 
             var keys = ECKeyHelper.GenerateKeys();
-            var publicKey = ((ECPublicKeyParameters)keys.Public).Q.GetEncoded(false);
-            var privateKey = ((ECPrivateKeyParameters)keys.Private).D.ToByteArrayUnsigned();
+            var publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
+            var privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
 
             results.PublicKey = UrlBase64.Encode(publicKey);
             results.PrivateKey = UrlBase64.Encode(ByteArrayPadLeft(privateKey, 32));
@@ -49,23 +49,19 @@ namespace WebPush
                 expiration = UnixTimeNow() + 43200;
             }
 
-            var header = new Dictionary<string, object>();
-            header.Add("typ", "JWT");
-            header.Add("alg", "ES256");
+            var header = new Dictionary<string, object> {{"typ", "JWT"}, {"alg", "ES256"}};
 
-            var jwtPayload = new Dictionary<string, object>();
-            jwtPayload.Add("aud", audience);
-            jwtPayload.Add("exp", expiration);
-            jwtPayload.Add("sub", subject);
+            var jwtPayload = new Dictionary<string, object> {{"aud", audience}, {"exp", expiration}, {"sub", subject}};
 
             var signingKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
 
-            var signer = new JWSSigner(signingKey);
+            var signer = new JwsSigner(signingKey);
             var token = signer.GenerateSignature(header, jwtPayload);
 
-            var results = new Dictionary<string, string>();
-            results.Add("Authorization", "WebPush " + token);
-            results.Add("Crypto-Key", "p256ecdsa=" + publicKey);
+            var results = new Dictionary<string, string>
+            {
+                {"Authorization", "WebPush " + token}, {"Crypto-Key", "p256ecdsa=" + publicKey}
+            };
 
             return results;
         }
@@ -143,7 +139,7 @@ namespace WebPush
         private static long UnixTimeNow()
         {
             var timeSpan = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0);
-            return (long)timeSpan.TotalSeconds;
+            return (long) timeSpan.TotalSeconds;
         }
 
         private static byte[] ByteArrayPadLeft(byte[] src, int size)

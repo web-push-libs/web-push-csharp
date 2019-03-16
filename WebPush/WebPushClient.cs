@@ -8,16 +8,17 @@ using System.Threading.Tasks;
 using WebPush.Util;
 
 [assembly: InternalsVisibleTo("WebPush.Test")]
+
 namespace WebPush
 {
     public class WebPushClient
     {
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
+        private readonly HttpClientHandler _httpClientHandler;
 
         private string _gcmApiKey;
         private HttpClient _httpClient;
-        private readonly HttpClientHandler _httpClientHandler;
         private VapidDetails _vapidDetails;
 
         public WebPushClient(HttpClientHandler httpClientHandler=null)
@@ -25,25 +26,14 @@ namespace WebPush
             _httpClientHandler = httpClientHandler;
         }
 
-        protected HttpClient HttpClient
-        {
-            get
-            {
-                if (_httpClient == null)
-                {
-                    _httpClient = _httpClientHandler == null
-                        ? new HttpClient()
-                        : new HttpClient(_httpClientHandler);
-
-                }
-
-                return _httpClient;
-            }
-        }
+        protected HttpClient HttpClient =>
+            _httpClient ?? (_httpClient = _httpClientHandler == null
+                ? new HttpClient()
+                : new HttpClient(_httpClientHandler));
 
         /// <summary>
         ///     When sending messages to a GCM endpoint you need to set the GCM API key
-        ///     by either calling setGCMAPIKey() or passing in the API key as an option
+        ///     by either calling setGcmApiKey() or passing in the API key as an option
         ///     to sendNotification()
         /// </summary>
         /// <param name="gcmApiKey">The API key to send with the GCM request.</param>
@@ -126,7 +116,7 @@ namespace WebPush
 
             if (options != null)
             {
-                var validOptionsKeys = new List<string> { "headers", "gcmAPIKey", "vapidDetails", "TTL" };
+                var validOptionsKeys = new List<string> {"headers", "gcmAPIKey", "vapidDetails", "TTL"};
                 foreach (var key in options.Keys)
                 {
                     if (!validOptionsKeys.Contains(key))
@@ -139,34 +129,21 @@ namespace WebPush
                 if (options.ContainsKey("headers"))
                 {
                     var headers = options["headers"] as Dictionary<string, object>;
-                    if (headers == null)
-                    {
-                        throw new ArgumentException("options.headers must be of type Dictionary<string,object>");
-                    }
 
-                    extraHeaders = headers;
+                    extraHeaders = headers ?? throw new ArgumentException("options.headers must be of type Dictionary<string,object>");
                 }
 
                 if (options.ContainsKey("gcmAPIKey"))
                 {
                     var gcmApiKey = options["gcmAPIKey"] as string;
-                    if (gcmApiKey == null)
-                    {
-                        throw new ArgumentException("options.gcmAPIKey must be of type string");
-                    }
 
-                    currentGcmApiKey = gcmApiKey;
+                    currentGcmApiKey = gcmApiKey ?? throw new ArgumentException("options.gcmAPIKey must be of type string");
                 }
 
                 if (options.ContainsKey("vapidDetails"))
                 {
                     var vapidDetails = options["vapidDetails"] as VapidDetails;
-                    if (vapidDetails == null)
-                    {
-                        throw new ArgumentException("options.vapidDetails must be of type VapidDetails");
-                    }
-
-                    currentVapidDetails = vapidDetails;
+                    currentVapidDetails = vapidDetails ?? throw new ArgumentException("options.vapidDetails must be of type VapidDetails");
                 }
 
                 if (options.ContainsKey("TTL"))
@@ -178,7 +155,7 @@ namespace WebPush
                     }
 
                     //at this stage ttl cannot be null.
-                    timeToLive = (int)ttl;
+                    timeToLive = (int) ttl;
                 }
             }
 
@@ -274,8 +251,7 @@ namespace WebPush
         /// <param name="vapidDetails">The vapid details for the notification.</param>
         public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object>();
-            options["vapidDetails"] = vapidDetails;
+            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
             SendNotification(subscription, payload, options);
         }
 
@@ -288,13 +264,12 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object>();
-            options["gcmAPIKey"] = gcmApiKey;
+            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
             SendNotification(subscription, payload, options);
         }
 
         /// <summary>
-        ///     To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
         ///     Will exception if unsuccessful
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
@@ -313,7 +288,7 @@ namespace WebPush
         }
 
         /// <summary>
-        ///     To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
         ///     Will exception if unsuccessful
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
@@ -322,13 +297,12 @@ namespace WebPush
         public async Task SendNotificationAsync(PushSubscription subscription, string payload,
             VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object>();
-            options["vapidDetails"] = vapidDetails;
+            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
             await SendNotificationAsync(subscription, payload, options);
         }
 
         /// <summary>
-        ///     To send a push notification asyncronously call this method with a subscription, optional payload and any options
+        ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
         ///     Will exception if unsuccessful
         /// </summary>
         /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
@@ -336,8 +310,7 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object>();
-            options["gcmAPIKey"] = gcmApiKey;
+            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -355,7 +328,7 @@ namespace WebPush
             }
 
             // Error
-            var message = @"Received unexpected response code: " + (int)response.StatusCode;
+            var message = @"Received unexpected response code: " + (int) response.StatusCode;
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
@@ -366,7 +339,7 @@ namespace WebPush
                     message = "Payload too large";
                     break;
 
-                case (HttpStatusCode)429:
+                case (HttpStatusCode) 429:
                     message = "Too many request.";
                     break;
 

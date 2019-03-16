@@ -59,12 +59,9 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGCMAPIKeyEmptyString()
         {
-            WebPushClient client = new WebPushClient();
+            var client = new WebPushClient();
 
-            Assert.ThrowsException<ArgumentException>(delegate
-            {
-                client.SetGcmApiKey("");
-            });
+            Assert.ThrowsException<ArgumentException>(delegate { client.SetGcmApiKey(""); });
         }
 
         [TestMethod]

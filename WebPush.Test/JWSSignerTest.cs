@@ -25,7 +25,7 @@ namespace WebPush.Test
             jwtPayload.Add("exp", 1);
             jwtPayload.Add("sub", "subject");
 
-            var signer = new JWSSigner(privateKey);
+            var signer = new JwsSigner(privateKey);
             var token = signer.GenerateSignature(header, jwtPayload);
 
             var tokenParts = token.Split('.');
