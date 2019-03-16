@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using RichardSzalay.MockHttp;
 
 namespace WebPush.Test
 {
@@ -108,6 +113,20 @@ namespace WebPush.Test
 
             Assert.IsTrue(authorizationHeader.StartsWith(@"WebPush "));
             Assert.IsTrue(cryptoHeader.Contains(@"p256ecdsa"));
+        }
+
+        [TestMethod]
+        public void TestPassingHttpClient()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(TestFcmEndpoint).Respond(HttpStatusCode.Created);
+
+            var client = new WebPushClient(mockHttp.ToHttpClient());
+            client.SetVapidDetails("mailto:example@example.com", TestPublicKey, TestPrivateKey);
+
+            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+
+            client.SendNotification(subscription, "123");
         }
     }
 }

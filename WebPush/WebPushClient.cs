@@ -21,7 +21,17 @@ namespace WebPush
         private HttpClient _httpClient;
         private VapidDetails _vapidDetails;
 
-        public WebPushClient(HttpClientHandler httpClientHandler=null)
+        public WebPushClient()
+        {
+            
+        }
+
+        public WebPushClient(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+        
+        public WebPushClient(HttpClientHandler httpClientHandler)
         {
             _httpClientHandler = httpClientHandler;
         }
