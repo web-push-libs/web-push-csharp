@@ -230,7 +230,7 @@ namespace WebPush
                 var audience = uri.Scheme + @"://" + uri.Host;
 
                 var vapidHeaders = VapidHelper.GetVapidHeaders(audience, currentVapidDetails.Subject,
-                    currentVapidDetails.PublicKey, currentVapidDetails.PrivateKey);
+                    currentVapidDetails.PublicKey, currentVapidDetails.PrivateKey, currentVapidDetails.Expiration);
                 request.Headers.Add(@"Authorization", vapidHeaders["Authorization"]);
                 if (string.IsNullOrEmpty(cryptoKeyHeader))
                 {

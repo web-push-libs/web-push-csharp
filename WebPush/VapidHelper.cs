@@ -48,6 +48,11 @@ namespace WebPush
             {
                 expiration = UnixTimeNow() + 43200;
             }
+            else
+            {
+                ValidateExpiration(expiration);                
+            }
+
 
             var header = new Dictionary<string, object> {{"typ", "JWT"}, {"alg", "ES256"}};
 
@@ -133,6 +138,14 @@ namespace WebPush
             if (decodedPrivateKey.Length != 32)
             {
                 throw new ArgumentException(@"Vapid private key should be 32 bytes long when decoded.");
+            }
+        }
+
+        private static void ValidateExpiration(long expiration)
+        {
+            if (expiration <= UnixTimeNow())
+            {
+                throw new ArgumentException(@"Vapid expiration must be a unix timestamp in the future");
             }
         }
 
