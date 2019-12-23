@@ -258,7 +258,25 @@ namespace WebPush
         ///     notification.
         /// </param>
         public void SendNotification(PushSubscription subscription, string payload = null,
-            Dictionary<string, object> options = null, CancellationToken cancellationToken = default)
+            Dictionary<string, object> options = null)
+        {
+            SendNotification(subscription, payload, options, CancellationToken.None);
+        }
+
+
+        /// <summary>
+        ///     To send a push notification call this method with a subscription, optional payload and any options
+        ///     Will exception if unsuccessful
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">
+        ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
+        ///     notification.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+        public void SendNotification(PushSubscription subscription, string payload,
+            Dictionary<string, object> options, CancellationToken cancellationToken)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
             var sendAsyncTask = HttpClient.SendAsync(request, cancellationToken);
@@ -305,8 +323,24 @@ namespace WebPush
         ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
         ///     notification.
         /// </param>
-        public async Task SendNotificationAsync(PushSubscription subscription, string payload = null,
-            Dictionary<string, object> options = null, CancellationToken cancellationToken = default)
+        public Task SendNotificationAsync(PushSubscription subscription, string payload = null,
+            Dictionary<string, object> options = null)
+        {
+            return SendNotificationAsync(subscription, payload, options, CancellationToken.None);
+        }
+
+        ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
+        ///     Will exception if unsuccessful
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">
+        ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
+        ///     notification.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload,
+            Dictionary<string, object> options, CancellationToken cancellationToken)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
             var response = await HttpClient.SendAsync(request, cancellationToken);
