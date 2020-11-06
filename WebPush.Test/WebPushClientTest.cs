@@ -1,12 +1,9 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RichardSzalay.MockHttp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using RichardSzalay.MockHttp;
 
 namespace WebPush.Test
 {
@@ -23,11 +20,21 @@ namespace WebPush.Test
         private const string TestFcmEndpoint =
             @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
 
+        public const string TestSubject = "mailto:example@example.com";
+
+        private MockHttpMessageHandler httpMessageHandlerMock;
+        private WebPushClient client;
+
+        [TestInitialize]
+        public void InitializeTest()
+        {
+            httpMessageHandlerMock = new MockHttpMessageHandler();
+            client = new WebPushClient(httpMessageHandlerMock.ToHttpClient());
+        }
+
         [TestMethod]
         public void TestGcmApiKeyInOptions()
         {
-            var client = new WebPushClient();
-
             var gcmAPIKey = @"teststring";
             var subscription = new PushSubscription(TestGcmEndpoint, TestPublicKey, TestPrivateKey);
 
@@ -50,8 +57,6 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGcmApiKey()
         {
-            var client = new WebPushClient();
-
             var gcmAPIKey = @"teststring";
             client.SetGcmApiKey(gcmAPIKey);
             var subscription = new PushSubscription(TestGcmEndpoint, TestPublicKey, TestPrivateKey);
@@ -64,8 +69,6 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGCMAPIKeyEmptyString()
         {
-            var client = new WebPushClient();
-
             Assert.ThrowsException<ArgumentException>(delegate { client.SetGcmApiKey(""); });
         }
 
@@ -73,7 +76,6 @@ namespace WebPush.Test
         public void TestSetGcmApiKeyNonGcmPushService()
         {
             // Ensure that the API key doesn't get added on a service that doesn't accept it.
-            var client = new WebPushClient();
 
             var gcmAPIKey = @"teststring";
             client.SetGcmApiKey(gcmAPIKey);
@@ -87,8 +89,6 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGcmApiKeyNull()
         {
-            var client = new WebPushClient();
-
             client.SetGcmApiKey(@"somestring");
             client.SetGcmApiKey(null);
 
@@ -102,9 +102,7 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetVapidDetails()
         {
-            var client = new WebPushClient();
-
-            client.SetVapidDetails("mailto:example@example.com", TestPublicKey, TestPrivateKey);
+            client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
 
             var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
@@ -116,15 +114,33 @@ namespace WebPush.Test
         }
 
         [TestMethod]
-        public void TestPassingHttpClient()
+        [DataRow(HttpStatusCode.Created)]
+        [DataRow(HttpStatusCode.Accepted)]
+        public void TestHandlingSuccessHttpCodes(HttpStatusCode status)
         {
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(TestFcmEndpoint).Respond(HttpStatusCode.Created);
+            TestSendNotification(status);
+        }
 
-            var client = new WebPushClient(mockHttp.ToHttpClient());
-            client.SetVapidDetails("mailto:example@example.com", TestPublicKey, TestPrivateKey);
+        [TestMethod]
+        [DataRow(HttpStatusCode.BadRequest, "Bad Request")]
+        [DataRow(HttpStatusCode.RequestEntityTooLarge, "Payload too large")]
+        [DataRow((HttpStatusCode)429, "Too many request.")]
+        [DataRow(HttpStatusCode.NotFound, "Subscription no longer valid")]
+        [DataRow(HttpStatusCode.Gone, "Subscription no longer valid")]
+        [DataRow(HttpStatusCode.InternalServerError, "Received unexpected response code: 500")]
+        public void TestHandlingFailureHttpCodes(HttpStatusCode status, string expectedMessage)
+        {
+            var actual = Assert.ThrowsException<WebPushException>(() => TestSendNotification(status));
 
-            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            Assert.AreEqual(expectedMessage, actual.Message);
+        }
+
+        private void TestSendNotification(HttpStatusCode status)
+        {
+            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey); ;
+            httpMessageHandlerMock.When(TestFcmEndpoint).Respond(status);
+
+            client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
 
             client.SendNotification(subscription, "123");
         }
