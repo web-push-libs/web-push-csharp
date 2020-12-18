@@ -1,150 +1,164 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+using Security.Cryptography;
 
 namespace WebPush.Util
 {
-    // @LogicSoftware
-    // Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
-    internal static class Encryptor
-    {
-        public static EncryptionResult Encrypt(string userKey, string userSecret, string payload)
-        {
-            var userKeyBytes = UrlBase64.Decode(userKey);
-            var userSecretBytes = UrlBase64.Decode(userSecret);
-            var payloadBytes = Encoding.UTF8.GetBytes(payload);
+	// @LogicSoftware
+	// Originally from https://github.com/LogicSoftware/WebPushEncryption/blob/master/src/Encryptor.cs
+	public static class Encryptor
+	{
+		public static EncryptionResult Encrypt(string userKey, string userSecret, string payload)
+		{
+			byte[] userKeyBytes = UrlBase64.Decode(userKey);
+			byte[] userSecretBytes = UrlBase64.Decode(userSecret);
+			byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
 
-            return Encrypt(userKeyBytes, userSecretBytes, payloadBytes);
-        }
+			return Encrypt(userKeyBytes, userSecretBytes, payloadBytes);
+		}
 
-        public static EncryptionResult Encrypt(byte[] userKey, byte[] userSecret, byte[] payload)
-        {
-            var salt = GenerateSalt(16);
-            var serverKeyPair = ECKeyHelper.GenerateKeys();
+		public static EncryptionResult Encrypt(byte[] userKey, byte[] userSecret, byte[] payload)
+		{
+			var salt = GenerateSalt(16);
 
-            var ecdhAgreement = AgreementUtilities.GetBasicAgreement("ECDH");
-            ecdhAgreement.Init(serverKeyPair.Private);
+			byte[] serverPublicKey = null;
+			byte[] key = null;
 
-            var userPublicKey = ECKeyHelper.GetPublicKey(userKey);
+			var cgnKey = ImportCngKeyFromPublicKey(userKey);
+			using (ECDiffieHellmanCng alice = new ECDiffieHellmanCng(256))
+			{
+				alice.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hmac;
+				alice.HashAlgorithm = CngAlgorithm.Sha256;
+				alice.HmacKey = userSecret;
 
-            var key = ecdhAgreement.CalculateAgreement(userPublicKey).ToByteArrayUnsigned();
-            var serverPublicKey = ((ECPublicKeyParameters) serverKeyPair.Public).Q.GetEncoded(false);
+				serverPublicKey = ImportPublicKeyFromCngKey(alice.PublicKey.ToByteArray());
+				key = alice.DeriveKeyMaterial(cgnKey);
+			}
+			
+			var prk = HKDFSecondStep(key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
+			byte[] cek = HKDF(salt, prk, CreateInfoChunk("aesgcm", userKey, serverPublicKey), 16);
+			byte[] nonce = HKDF(salt, prk, CreateInfoChunk("nonce", userKey, serverPublicKey), 12);
 
-            var prk = HKDF(userSecret, key, Encoding.UTF8.GetBytes("Content-Encoding: auth\0"), 32);
-            var cek = HKDF(salt, prk, CreateInfoChunk("aesgcm", userKey, serverPublicKey), 16);
-            var nonce = HKDF(salt, prk, CreateInfoChunk("nonce", userKey, serverPublicKey), 12);
+			var input = AddPaddingToInput(payload);
 
-            var input = AddPaddingToInput(payload);
-            var encryptedMessage = EncryptAes(nonce, cek, input);
+			var encryptedMessage = EncryptAes(nonce, cek, input);
 
-            return new EncryptionResult
-            {
-                Salt = salt,
-                Payload = encryptedMessage,
-                PublicKey = serverPublicKey
-            };
-        }
+			return new EncryptionResult
+			{
+				Salt = salt,
+				Payload = encryptedMessage,
+				PublicKey = serverPublicKey
+			};
+		}
 
-        private static byte[] GenerateSalt(int length)
-        {
-            var salt = new byte[length];
-            var random = new Random();
-            random.NextBytes(salt);
-            return salt;
-        }
+		private static CngKey ImportCngKeyFromPublicKey(byte[] userKey)
+		{
+			var keyType = new byte[] { 0x45, 0x43, 0x4B, 0x31 };
+			var keyLength = new byte[] { 0x20, 0x00, 0x00, 0x00 };
 
-        private static byte[] AddPaddingToInput(byte[] data)
-        {
-            var input = new byte[0 + 2 + data.Length];
-            Buffer.BlockCopy(ConvertInt(0), 0, input, 0, 2);
-            Buffer.BlockCopy(data, 0, input, 0 + 2, data.Length);
-            return input;
-        }
+			var keyImport = keyType.Concat(keyLength).Concat(userKey.Skip(1)).ToArray();
 
-        private static byte[] EncryptAes(byte[] nonce, byte[] cek, byte[] message)
-        {
-            var cipher = new GcmBlockCipher(new AesEngine());
-            var parameters = new AeadParameters(new KeyParameter(cek), 128, nonce);
-            cipher.Init(true, parameters);
+			return CngKey.Import(keyImport, CngKeyBlobFormat.EccPublicBlob);
+		}
 
-            //Generate Cipher Text With Auth Tag
-            var cipherText = new byte[cipher.GetOutputSize(message.Length)];
-            var len = cipher.ProcessBytes(message, 0, message.Length, cipherText, 0);
-            cipher.DoFinal(cipherText, len);
+		private static byte[] ImportPublicKeyFromCngKey(byte[] cngKey)
+		{
+			var keyImport = (new byte[] { 0x04 }).Concat(cngKey.Skip(8)).ToArray();
 
-            //byte[] tag = cipher.GetMac();
-            return cipherText;
-        }
+			return keyImport;
+		}
 
-        public static byte[] HKDFSecondStep(byte[] key, byte[] info, int length)
-        {
-            var hmac = new HmacSha256(key);
-            var infoAndOne = info.Concat(new byte[] {0x01}).ToArray();
-            var result = hmac.ComputeHash(infoAndOne);
+		private static byte[] GenerateSalt(int length)
+		{
+			var salt = new byte[length];
+			var random = new Random();
+			random.NextBytes(salt);
+			return salt;
+		}
 
-            if (result.Length > length)
-            {
-                Array.Resize(ref result, length);
-            }
+		private static byte[] AddPaddingToInput(byte[] data)
+		{
+			var input = new byte[0 + 2 + data.Length];
+			Buffer.BlockCopy(ConvertInt(0), 0, input, 0, 2);
+			Buffer.BlockCopy(data, 0, input, 0 + 2, data.Length);
+			return input;
+		}
 
-            return result;
-        }
 
-        public static byte[] HKDF(byte[] salt, byte[] prk, byte[] info, int length)
-        {
-            var hmac = new HmacSha256(salt);
-            var key = hmac.ComputeHash(prk);
+		private static byte[] EncryptAes(byte[] nonce, byte[] cek, byte[] message)
+		{
+			using (AuthenticatedAesCng aes = new AuthenticatedAesCng())
+			{
+				aes.CngMode = CngChainingMode.Gcm;
 
-            return HKDFSecondStep(key, info, length);
-        }
+				aes.Key = cek;
 
-        public static byte[] ConvertInt(int number)
-        {
-            var output = BitConverter.GetBytes(Convert.ToUInt16(number));
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(output);
-            }
+				aes.IV = nonce;
 
-            return output;
-        }
+				using (MemoryStream ms = new MemoryStream())
+				using (var encryptor = aes.CreateAuthenticatedEncryptor())
+				using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+				{
+					// Encrypt the secret message
+					cs.Write(message, 0, message.Length);
 
-        public static byte[] CreateInfoChunk(string type, byte[] recipientPublicKey, byte[] senderPublicKey)
-        {
-            var output = new List<byte>();
-            output.AddRange(Encoding.UTF8.GetBytes($"Content-Encoding: {type}\0P-256\0"));
-            output.AddRange(ConvertInt(recipientPublicKey.Length));
-            output.AddRange(recipientPublicKey);
-            output.AddRange(ConvertInt(senderPublicKey.Length));
-            output.AddRange(senderPublicKey);
-            return output.ToArray();
-        }
-    }
+					// Finish the encryption and get the output authentication tag and ciphertext
+					cs.FlushFinalBlock();
+					var ciphertext = ms.ToArray();
 
-    public class HmacSha256
-    {
-        private readonly HMac _hmac;
+					var tag = encryptor.GetTag();
 
-        public HmacSha256(byte[] key)
-        {
-            _hmac = new HMac(new Sha256Digest());
-            _hmac.Init(new KeyParameter(key));
-        }
+					return ciphertext.Concat(tag).ToArray();
+				}
+			}
+		}
 
-        public byte[] ComputeHash(byte[] value)
-        {
-            var resBuf = new byte[_hmac.GetMacSize()];
-            _hmac.BlockUpdate(value, 0, value.Length);
-            _hmac.DoFinal(resBuf, 0);
+		public static byte[] HKDFSecondStep(byte[] key, byte[] info, int length)
+		{
+			var hmac = new HMACSHA256(key);
+			var infoAndOne = info.Concat(new byte[] { 0x01 }).ToArray();
+			var result = hmac.ComputeHash(infoAndOne);
 
-            return resBuf;
-        }
-    }
+			if (result.Length > length)
+			{
+				Array.Resize(ref result, length);
+			}
+
+			return result;
+		}
+
+		public static byte[] HKDF(byte[] salt, byte[] prk, byte[] info, int length)
+		{
+			var hmac = new HMACSHA256(salt);
+			var key = hmac.ComputeHash(prk);
+
+			return HKDFSecondStep(key, info, length);
+		}
+
+		public static byte[] ConvertInt(int number)
+		{
+			var output = BitConverter.GetBytes(Convert.ToUInt16(number));
+			if (BitConverter.IsLittleEndian)
+			{
+				Array.Reverse(output);
+			}
+
+			return output;
+		}
+
+		public static byte[] CreateInfoChunk(string type, byte[] recipientPublicKey, byte[] senderPublicKey)
+		{
+			var output = new List<byte>();
+			output.AddRange(Encoding.UTF8.GetBytes($"Content-Encoding: {type}\0P-256\0"));
+			output.AddRange(ConvertInt(recipientPublicKey.Length));
+			output.AddRange(recipientPublicKey);
+			output.AddRange(ConvertInt(senderPublicKey.Length));
+			output.AddRange(senderPublicKey);
+			return output.ToArray();
+		}
+	}
 }

@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
+using System.Security.Cryptography;
 
 namespace WebPush.Util
 {
-    internal class JwsSigner
+	internal class JwsSigner
     {
-        private readonly ECPrivateKeyParameters _privateKey;
+        private readonly AsymmetricAlgorithm _privateKey;
 
-        public JwsSigner(ECPrivateKeyParameters privateKey)
+        public JwsSigner(AsymmetricAlgorithm privateKey)
         {
-            _privateKey = privateKey;
+			_privateKey = privateKey;
         }
 
         /// <summary>
@@ -30,25 +27,18 @@ namespace WebPush.Util
             var message = Encoding.UTF8.GetBytes(securedInput);
 
             var hashedMessage = Sha256Hash(message);
+			byte[] results = null;
 
-            var signer = new ECDsaSigner();
-            signer.Init(true, _privateKey);
-            var results = signer.GenerateSignature(hashedMessage);
+			if (_privateKey is ECDsaCng)
+			{
+				(_privateKey as ECDsaCng).HashAlgorithm = CngAlgorithm.Sha256;
+				results = (_privateKey as ECDsaCng).SignHash(hashedMessage);
+			}
+			else
+				throw new Exception($"Algorithm {_privateKey?.GetType()} not supported");
 
-            // Concated to create signature
-            var a = results[0].ToByteArrayUnsigned();
-            var b = results[1].ToByteArrayUnsigned();
-
-            // a,b are required to be exactly the same length of bytes
-            if (a.Length != b.Length)
-            {
-                var largestLength = Math.Max(a.Length, b.Length);
-                a = ByteArrayPadLeft(a, largestLength);
-                b = ByteArrayPadLeft(b, largestLength);
-            }
-
-            var signature = UrlBase64.Encode(a.Concat(b).ToArray());
-            return $"{securedInput}.{signature}";
+			var signature = UrlBase64.Encode(results);
+			return $"{securedInput}.{signature}";
         }
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
@@ -67,13 +57,12 @@ namespace WebPush.Util
             return dst;
         }
 
-        private static byte[] Sha256Hash(byte[] message)
-        {
-            var sha256Digest = new Sha256Digest();
-            sha256Digest.BlockUpdate(message, 0, message.Length);
-            var hash = new byte[sha256Digest.GetDigestSize()];
-            sha256Digest.DoFinal(hash, 0);
-            return hash;
-        }
-    }
+		private static byte[] Sha256Hash(byte[] message)
+		{
+			using (SHA256 sha256Hash = SHA256.Create())
+			{
+				return sha256Hash.ComputeHash(message);
+			}
+		}		
+	}
 }

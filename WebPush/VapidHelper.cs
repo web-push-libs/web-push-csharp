@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
 
 namespace WebPush
@@ -14,11 +13,11 @@ namespace WebPush
         {
             var results = new VapidDetails();
 
-            var keys = ECKeyHelper.GenerateKeys();
-            var publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
-            var privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
+			var keys = ECKeyHelper.GenerateKeys();
+			var publicKey = keys.PublicKey;
+			var privateKey = keys.PrivateKey;
 
-            results.PublicKey = UrlBase64.Encode(publicKey);
+			results.PublicKey = UrlBase64.Encode(publicKey);
             results.PrivateKey = UrlBase64.Encode(ByteArrayPadLeft(privateKey, 32));
 
             return results;
@@ -42,7 +41,8 @@ namespace WebPush
             ValidatePublicKey(publicKey);
             ValidatePrivateKey(privateKey);
 
-            var decodedPrivateKey = UrlBase64.Decode(privateKey);
+			var decodedPublicKey = UrlBase64.Decode(publicKey);
+			var decodedPrivateKey = UrlBase64.Decode(privateKey);
 
             if (expiration == -1)
             {
@@ -50,7 +50,7 @@ namespace WebPush
             }
             else
             {
-                ValidateExpiration(expiration);                
+                ValidateExpiration(expiration);
             }
 
 
@@ -58,17 +58,19 @@ namespace WebPush
 
             var jwtPayload = new Dictionary<string, object> {{"aud", audience}, {"exp", expiration}, {"sub", subject}};
 
-            var signingKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
+			using (var signingKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey))
+			{
 
-            var signer = new JwsSigner(signingKey);
-            var token = signer.GenerateSignature(header, jwtPayload);
+				var signer = new JwsSigner(signingKey);
+				var token = signer.GenerateSignature(header, jwtPayload);
 
-            var results = new Dictionary<string, string>
-            {
-                {"Authorization", "WebPush " + token}, {"Crypto-Key", "p256ecdsa=" + publicKey}
-            };
+				var results = new Dictionary<string, string>
+				{
+					{"Authorization", "WebPush " + token}, {"Crypto-Key", "p256ecdsa=" + publicKey}
+				};
 
-            return results;
+				return results;
+			}
         }
 
         public static void ValidateAudience(string audience)

@@ -376,7 +376,7 @@ namespace WebPush
                     break;
             }
 
-            throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
+            throw new WebPushException(message, response.StatusCode, response.Headers, subscription, response.ReasonPhrase);
         }
         
         public void Dispose()
