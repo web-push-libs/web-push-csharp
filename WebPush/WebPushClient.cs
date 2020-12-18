@@ -26,14 +26,14 @@ namespace WebPush
 
         public WebPushClient()
         {
-            
+
         }
 
         public WebPushClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
-        
+
         public WebPushClient(HttpClientHandler httpClientHandler)
         {
             _httpClientHandler = httpClientHandler;
@@ -142,7 +142,7 @@ namespace WebPush
 
             if (options != null)
             {
-                var validOptionsKeys = new List<string> {"headers", "gcmAPIKey", "vapidDetails", "TTL"};
+                var validOptionsKeys = new List<string> { "headers", "gcmAPIKey", "vapidDetails", "TTL" };
                 foreach (var key in options.Keys)
                 {
                     if (!validOptionsKeys.Contains(key))
@@ -181,7 +181,7 @@ namespace WebPush
                     }
 
                     //at this stage ttl cannot be null.
-                    timeToLive = (int) ttl;
+                    timeToLive = (int)ttl;
                 }
             }
 
@@ -277,7 +277,7 @@ namespace WebPush
         /// <param name="vapidDetails">The vapid details for the notification.</param>
         public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
+            var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
             SendNotification(subscription, payload, options);
         }
 
@@ -290,7 +290,7 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
+            var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             SendNotification(subscription, payload, options);
         }
 
@@ -323,7 +323,7 @@ namespace WebPush
         public async Task SendNotificationAsync(PushSubscription subscription, string payload,
             VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
+            var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -336,7 +336,7 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
+            var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -355,7 +355,7 @@ namespace WebPush
             }
 
             // Error
-            var message = @"Received unexpected response code: " + (int) response.StatusCode;
+            var message = @"Received unexpected response code: " + (int)response.StatusCode;
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
@@ -366,7 +366,7 @@ namespace WebPush
                     message = "Payload too large";
                     break;
 
-                case (HttpStatusCode) 429:
+                case (HttpStatusCode)429:
                     message = "Too many request.";
                     break;
 
@@ -376,9 +376,9 @@ namespace WebPush
                     break;
             }
 
-            throw new WebPushException(message, response.StatusCode, response.Headers, subscription, response.ReasonPhrase);
+            throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
         }
-        
+
         public void Dispose()
         {
             if (_httpClient != null && _isHttpClientInternallyCreated)

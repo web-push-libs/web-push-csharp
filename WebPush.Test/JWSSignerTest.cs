@@ -14,9 +14,9 @@ namespace WebPush.Test
         public void TestGenerateSignature()
         {
             var decodedPrivateKey = UrlBase64.Decode(TestPrivateKey);
-			var privateKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
+            var privateKey = ECKeyHelper.GetPrivateKey(decodedPrivateKey);
 
-			var header = new Dictionary<string, object>();
+            var header = new Dictionary<string, object>();
             header.Add("typ", "JWT");
             header.Add("alg", "ES256");
 

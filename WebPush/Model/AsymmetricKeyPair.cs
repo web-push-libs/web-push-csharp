@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace WebPush
 {
-	public class AsymmetricKeyPair
-	{
-		public byte[] PublicKey;
-		public byte[] PrivateKey;
-	}
+    public class AsymmetricKeyPair
+    {
+        public byte[] PublicKey;
+        public byte[] PrivateKey;
+    }
 }

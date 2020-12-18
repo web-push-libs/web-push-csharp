@@ -6,13 +6,13 @@ using System.Security.Cryptography;
 
 namespace WebPush.Util
 {
-	internal class JwsSigner
+    internal class JwsSigner
     {
         private readonly AsymmetricAlgorithm _privateKey;
 
         public JwsSigner(AsymmetricAlgorithm privateKey)
         {
-			_privateKey = privateKey;
+            _privateKey = privateKey;
         }
 
         /// <summary>
@@ -27,18 +27,18 @@ namespace WebPush.Util
             var message = Encoding.UTF8.GetBytes(securedInput);
 
             var hashedMessage = Sha256Hash(message);
-			byte[] results = null;
+            byte[] results = null;
 
-			if (_privateKey is ECDsaCng)
-			{
-				(_privateKey as ECDsaCng).HashAlgorithm = CngAlgorithm.Sha256;
-				results = (_privateKey as ECDsaCng).SignHash(hashedMessage);
-			}
-			else
-				throw new Exception($"Algorithm {_privateKey?.GetType()} not supported");
+            if (_privateKey is ECDsaCng)
+            {
+                (_privateKey as ECDsaCng).HashAlgorithm = CngAlgorithm.Sha256;
+                results = (_privateKey as ECDsaCng).SignHash(hashedMessage);
+            }
+            else
+                throw new Exception($"Algorithm {_privateKey?.GetType()} not supported");
 
-			var signature = UrlBase64.Encode(results);
-			return $"{securedInput}.{signature}";
+            var signature = UrlBase64.Encode(results);
+            return $"{securedInput}.{signature}";
         }
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
@@ -57,12 +57,12 @@ namespace WebPush.Util
             return dst;
         }
 
-		private static byte[] Sha256Hash(byte[] message)
-		{
-			using (SHA256 sha256Hash = SHA256.Create())
-			{
-				return sha256Hash.ComputeHash(message);
-			}
-		}		
-	}
+        private static byte[] Sha256Hash(byte[] message)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                return sha256Hash.ComputeHash(message);
+            }
+        }
+    }
 }
