@@ -27,27 +27,27 @@ namespace WebPush.Util
             return CngKey.Import(keyImport, CngKeyBlobFormat.EccPublicBlob);
         }
 #if NET48
-	public static AsymmetricAlgorithm GetPrivateKey(byte[] privateKey)
-	{
-		return ECDsaCng.Create(new ECParameters
-		{
-			Curve = ECCurve.NamedCurves.nistP256,
-			D = privateKey,
-			Q = new ECPoint(){ X = new byte[32],Y = new byte[32]}
-		});
-	}
-	public static AsymmetricKeyPair GenerateKeys()
-		{
+    public static AsymmetricAlgorithm GetPrivateKey(byte[] privateKey)
+    {
+        return ECDsaCng.Create(new ECParameters
+        {
+            Curve = ECCurve.NamedCurves.nistP256,
+            D = privateKey,
+            Q = new ECPoint(){ X = new byte[32],Y = new byte[32]}
+        });
+    }
+    public static AsymmetricKeyPair GenerateKeys()
+        {
 
-			using (var cng = new ECDiffieHellmanCng(ECCurve.NamedCurves.nistP256))
-			{
-				cng.GenerateKey(ECCurve.NamedCurves.nistP256);
-				var parameters = cng.ExportParameters(true);
-				var pr = parameters.D.ToArray();
-				var pub = new byte[] { 0x04 }.Concat(parameters.Q.X).Concat(parameters.Q.Y).ToArray();
-				return new AsymmetricKeyPair() { PublicKey = pub,PrivateKey = pr };
-			}
-		}
+            using (var cng = new ECDiffieHellmanCng(ECCurve.NamedCurves.nistP256))
+            {
+                cng.GenerateKey(ECCurve.NamedCurves.nistP256);
+                var parameters = cng.ExportParameters(true);
+                var pr = parameters.D.ToArray();
+                var pub = new byte[] { 0x04 }.Concat(parameters.Q.X).Concat(parameters.Q.Y).ToArray();
+                return new AsymmetricKeyPair() { PublicKey = pub,PrivateKey = pr };
+            }
+        }
 #else
         private static CngKey ImportPrivCngKey(byte[] pubKey, byte[] privKey)
         {
@@ -75,23 +75,35 @@ namespace WebPush.Util
             return ecDsaCng;
         }
 
+        public static bool CngKeyExists(string keyName, CngProvider cp)
+        {
+            if (string.IsNullOrEmpty(keyName))
+                return false;
+            try
+            {
+                return CngKey.Exists(keyName, cp);
+            }
+            catch (CryptographicException) { }
+            return false;
+        }
+
         public static AsymmetricKeyPair GenerateKeys()
         {
-            CngProvider cp = CngProvider.MicrosoftSoftwareKeyStorageProvider;
-            string keyName = "tempvapidkey";
-            if (CngKey.Exists(keyName, cp))
-            {
-                using (CngKey cngKey = CngKey.Open(keyName, cp))
-                    cngKey.Delete();
-            }
+            //CngProvider cp = CngProvider.MicrosoftSoftwareKeyStorageProvider;
+            //string keyName = "tempvapidkey";
+            //if (CngKeyExists(keyName, cp))
+            //{
+            //    using (CngKey cngKey = CngKey.Open(keyName, cp))
+            //        cngKey.Delete();
+            //}
             CngKeyCreationParameters kcp = new CngKeyCreationParameters
             {
-                Provider = cp,
+                //Provider = cp,
                 ExportPolicy = CngExportPolicies.AllowPlaintextExport
             };
             try
             {
-                using (CngKey myKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP256, keyName, kcp))
+                using (CngKey myKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP256, null, kcp))
                 {
                     return new AsymmetricKeyPair()
                     {
@@ -102,11 +114,11 @@ namespace WebPush.Util
             }
             finally
             {
-                if (CngKey.Exists(keyName, cp))
-                {
-                    using (CngKey cngKey = CngKey.Open(keyName, cp))
-                        cngKey.Delete();
-                }
+                //if (CngKeyExists(keyName, cp))
+                //{
+                //    using (CngKey cngKey = CngKey.Open(keyName, cp))
+                //        cngKey.Delete();
+                //}
             }
         }
 #endif
