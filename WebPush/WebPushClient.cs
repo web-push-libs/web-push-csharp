@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using WebPush.Util;
 
@@ -26,14 +27,14 @@ namespace WebPush
 
         public WebPushClient()
         {
-            
+
         }
 
         public WebPushClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
-        
+
         public WebPushClient(HttpClientHandler httpClientHandler)
         {
             _httpClientHandler = httpClientHandler;
@@ -142,7 +143,7 @@ namespace WebPush
 
             if (options != null)
             {
-                var validOptionsKeys = new List<string> {"headers", "gcmAPIKey", "vapidDetails", "TTL"};
+                var validOptionsKeys = new List<string> { "headers", "gcmAPIKey", "vapidDetails", "TTL" };
                 foreach (var key in options.Keys)
                 {
                     if (!validOptionsKeys.Contains(key))
@@ -181,7 +182,7 @@ namespace WebPush
                     }
 
                     //at this stage ttl cannot be null.
-                    timeToLive = (int) ttl;
+                    timeToLive = (int)ttl;
                 }
             }
 
@@ -259,8 +260,26 @@ namespace WebPush
         public void SendNotification(PushSubscription subscription, string payload = null,
             Dictionary<string, object> options = null)
         {
+            SendNotification(subscription, payload, options, CancellationToken.None);
+        }
+
+
+        /// <summary>
+        ///     To send a push notification call this method with a subscription, optional payload and any options
+        ///     Will exception if unsuccessful
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">
+        ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
+        ///     notification.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+        public void SendNotification(PushSubscription subscription, string payload,
+            Dictionary<string, object> options, CancellationToken cancellationToken)
+        {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var sendAsyncTask = HttpClient.SendAsync(request);
+            var sendAsyncTask = HttpClient.SendAsync(request, cancellationToken);
             sendAsyncTask.Wait();
 
             var response = sendAsyncTask.Result;
@@ -277,7 +296,7 @@ namespace WebPush
         /// <param name="vapidDetails">The vapid details for the notification.</param>
         public void SendNotification(PushSubscription subscription, string payload, VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
+            var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
             SendNotification(subscription, payload, options);
         }
 
@@ -290,7 +309,7 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public void SendNotification(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
+            var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             SendNotification(subscription, payload, options);
         }
 
@@ -304,11 +323,27 @@ namespace WebPush
         ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
         ///     notification.
         /// </param>
-        public async Task SendNotificationAsync(PushSubscription subscription, string payload = null,
+        public Task SendNotificationAsync(PushSubscription subscription, string payload = null,
             Dictionary<string, object> options = null)
         {
+            return SendNotificationAsync(subscription, payload, options, CancellationToken.None);
+        }
+
+        ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
+        ///     Will exception if unsuccessful
+        /// </summary>
+        /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+        /// <param name="payload">The payload you wish to send to the user</param>
+        /// <param name="options">
+        ///     Options for the GCM API key and vapid keys can be passed in if they are unique for each
+        ///     notification.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload,
+            Dictionary<string, object> options, CancellationToken cancellationToken)
+        {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var response = await HttpClient.SendAsync(request);
+            var response = await HttpClient.SendAsync(request, cancellationToken);
 
             HandleResponse(response, subscription);
         }
@@ -323,7 +358,7 @@ namespace WebPush
         public async Task SendNotificationAsync(PushSubscription subscription, string payload,
             VapidDetails vapidDetails)
         {
-            var options = new Dictionary<string, object> {["vapidDetails"] = vapidDetails};
+            var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -336,7 +371,7 @@ namespace WebPush
         /// <param name="gcmApiKey">The GCM API key</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey)
         {
-            var options = new Dictionary<string, object> {["gcmAPIKey"] = gcmApiKey};
+            var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             await SendNotificationAsync(subscription, payload, options);
         }
 
@@ -355,7 +390,7 @@ namespace WebPush
             }
 
             // Error
-            var message = @"Received unexpected response code: " + (int) response.StatusCode;
+            var message = @"Received unexpected response code: " + (int)response.StatusCode;
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
@@ -366,7 +401,7 @@ namespace WebPush
                     message = "Payload too large";
                     break;
 
-                case (HttpStatusCode) 429:
+                case (HttpStatusCode)429:
                     message = "Too many request.";
                     break;
 
@@ -378,7 +413,7 @@ namespace WebPush
 
             throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
         }
-        
+
         public void Dispose()
         {
             if (_httpClient != null && _isHttpClientInternallyCreated)
