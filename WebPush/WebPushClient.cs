@@ -218,6 +218,8 @@ namespace WebPush
             }
 
             var isGcm = subscription.Endpoint.StartsWith(@"https://android.googleapis.com/gcm/send");
+            var isFcm = subscription.Endpoint.StartsWith(@"https://fcm.googleapis.com/fcm/send/");
+
             if (isGcm)
             {
                 if (!string.IsNullOrEmpty(currentGcmApiKey))
@@ -241,6 +243,9 @@ namespace WebPush
                 {
                     cryptoKeyHeader += @";" + vapidHeaders["Crypto-Key"];
                 }
+            } else if (isFcm && !string.IsNullOrEmpty(currentGcmApiKey))
+            {
+                request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGcmApiKey);
             }
 
             request.Headers.Add("Crypto-Key", cryptoKeyHeader);

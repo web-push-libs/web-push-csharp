@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 
 namespace WebPush.Test
 {
@@ -19,6 +20,9 @@ namespace WebPush.Test
 
         private const string TestFcmEndpoint =
             @"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6";
+
+        private const string TestFirefoxEndpoint =
+            @"https://updates.push.services.mozilla.com/wpush/v2/gBABAABgOe_sGrdrsT35ljtA4O9xCX";
 
         public const string TestSubject = "mailto:example@example.com";
 
@@ -76,10 +80,9 @@ namespace WebPush.Test
         public void TestSetGcmApiKeyNonGcmPushService()
         {
             // Ensure that the API key doesn't get added on a service that doesn't accept it.
-
             var gcmAPIKey = @"teststring";
             client.SetGcmApiKey(gcmAPIKey);
-            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            var subscription = new PushSubscription(TestFirefoxEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
 
             IEnumerable<string> values;
@@ -103,14 +106,25 @@ namespace WebPush.Test
         public void TestSetVapidDetails()
         {
             client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
-
-            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            
+            var subscription = new PushSubscription(TestFirefoxEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
             var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
             var cryptoHeader = message.Headers.GetValues(@"Crypto-Key").First();
 
             Assert.IsTrue(authorizationHeader.StartsWith(@"WebPush "));
             Assert.IsTrue(cryptoHeader.Contains(@"p256ecdsa"));
+        }
+
+        [TestMethod]
+        public void TestFcmAddsAuthorizationHeader()
+        {
+            client.SetGcmApiKey(@"somestring");
+            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            var message = client.GenerateRequestDetails(subscription, @"test payload");
+            var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
+
+            Assert.IsTrue(authorizationHeader.StartsWith(@"key="));
         }
 
         [TestMethod]
