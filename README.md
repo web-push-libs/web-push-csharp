@@ -52,8 +52,8 @@ var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
 var webPushClient = new WebPushClient();
 try
 {
-	webPushClient.SendNotification(subscription, "payload", vapidDetails);
-    //webPushClient.SendNotification(subscription, "payload", gcmAPIKey);
+	await webPushClient.SendNotificationAsync(subscription, "payload", vapidDetails);
+    //await webPushClient.SendNotificationAsync(subscription, "payload", gcmAPIKey);
 }
 catch (WebPushException exception)
 {
@@ -63,7 +63,7 @@ catch (WebPushException exception)
 
 # API Reference
 
-## SendNotification(pushSubscription, payload, vapidDetails|gcmAPIKey|options)
+## SendNotificationAsync(pushSubscription, payload, vapidDetails|gcmAPIKey|options, cancellationToken)
 
 ```csharp
 var subscription = new PushSubscription(pushEndpoint, p256dh, auth);
@@ -75,7 +75,7 @@ options["vapidDetails"] = new VapidDetails(subject, publicKey, privateKey);
 var webPushClient = new WebPushClient();
 try
 {
-	webPushClient.SendNotification(subscription, "payload", options);
+	webPushClient.SendNotificationAsync(subscription, "payload", options);
 }
 catch (WebPushException exception)
 {
@@ -83,7 +83,7 @@ catch (WebPushException exception)
 }
 ```
 
-> **Note:** `SendNotification()` you don't need to define a payload, and this
+> **Note:** `SendNotificationAsync()` you don't need to define a payload, and this
 method will work without a GCM API Key and / or VAPID keys if the push service
 supports it.
 
