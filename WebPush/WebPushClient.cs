@@ -383,8 +383,7 @@ namespace WebPush
         private static void HandleResponse(HttpResponseMessage response, PushSubscription subscription)
         {
             // Successful
-            if (response.StatusCode == HttpStatusCode.Created ||
-                response.StatusCode == HttpStatusCode.Accepted)
+            if (response.IsSuccessStatusCode)
             {
                 return;
             }
