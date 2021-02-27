@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace WebPush
 {
     public class WebPushException : Exception
     {
-        public WebPushException(string message, HttpStatusCode statusCode, HttpResponseHeaders headers,
-            PushSubscription pushSubscription) : base(message)
+        public WebPushException(string message, PushSubscription pushSubscription, HttpResponseMessage responseMessage) : base(message)
         {
-            StatusCode = statusCode;
-            Headers = headers;
             PushSubscription = pushSubscription;
+            HttpResponseMessage = responseMessage;
         }
 
-        public HttpStatusCode StatusCode { get; set; }
-        public HttpResponseHeaders Headers { get; set; }
+        public HttpStatusCode StatusCode => HttpResponseMessage.StatusCode;
+
+        public HttpResponseHeaders Headers => HttpResponseMessage.Headers;
         public PushSubscription PushSubscription { get; set; }
+        public HttpResponseMessage HttpResponseMessage { get; set; }
     }
 }

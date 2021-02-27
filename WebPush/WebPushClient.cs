@@ -359,28 +359,33 @@ namespace WebPush
             }
 
             // Error
-            var message = @"Received unexpected response code: " + (int)response.StatusCode;
+            var responseCodeMessage = @"Received unexpected response code: " + (int)response.StatusCode;
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    message = "Bad Request";
+                    responseCodeMessage = "Bad Request";
                     break;
 
                 case HttpStatusCode.RequestEntityTooLarge:
-                    message = "Payload too large";
+                    responseCodeMessage = "Payload too large";
                     break;
 
                 case (HttpStatusCode)429:
-                    message = "Too many request.";
+                    responseCodeMessage = "Too many request";
                     break;
 
                 case HttpStatusCode.NotFound:
                 case HttpStatusCode.Gone:
-                    message = "Subscription no longer valid";
+                    responseCodeMessage = "Subscription no longer valid";
                     break;
             }
 
-            throw new WebPushException(message, response.StatusCode, response.Headers, subscription);
+            var details = response.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+            var message = string.IsNullOrEmpty(details)
+                ? responseCodeMessage
+                : $"{responseCodeMessage}. Details: {details}";
+
+            throw new WebPushException(message, subscription, response);
         }
 
         public void Dispose()

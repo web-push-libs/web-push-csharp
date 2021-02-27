@@ -138,24 +138,35 @@ namespace WebPush.Test
         [TestMethod]
         [DataRow(HttpStatusCode.BadRequest, "Bad Request")]
         [DataRow(HttpStatusCode.RequestEntityTooLarge, "Payload too large")]
-        [DataRow((HttpStatusCode)429, "Too many request.")]
+        [DataRow((HttpStatusCode)429, "Too many request")]
         [DataRow(HttpStatusCode.NotFound, "Subscription no longer valid")]
         [DataRow(HttpStatusCode.Gone, "Subscription no longer valid")]
         [DataRow(HttpStatusCode.InternalServerError, "Received unexpected response code: 500")]
         public void TestHandlingFailureHttpCodes(HttpStatusCode status, string expectedMessage)
         {
             var actual = Assert.ThrowsException<WebPushException>(() => TestSendNotification(status));
-
             Assert.AreEqual(expectedMessage, actual.Message);
         }
 
-        private void TestSendNotification(HttpStatusCode status)
+        [TestMethod]
+        [DataRow(HttpStatusCode.BadRequest, "authorization key missing", "Bad Request. Details: authorization key missing")]
+        [DataRow(HttpStatusCode.RequestEntityTooLarge, "max size is 512", "Payload too large. Details: max size is 512")]
+        [DataRow((HttpStatusCode)429, "the api is limited", "Too many request. Details: the api is limited")]
+        [DataRow(HttpStatusCode.NotFound, "", "Subscription no longer valid")]
+        [DataRow(HttpStatusCode.Gone, "", "Subscription no longer valid")]
+        [DataRow(HttpStatusCode.InternalServerError, "internal error", "Received unexpected response code: 500. Details: internal error")]
+        public void TestHandlingFailureMessages(HttpStatusCode status, string response, string expectedMessage)
         {
-            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey); ;
-            httpMessageHandlerMock.When(TestFcmEndpoint).Respond(status);
+            var actual = Assert.ThrowsException<WebPushException>(() => TestSendNotification(status, response));
+            Assert.AreEqual(expectedMessage, actual.Message);
+        }
 
+        private void TestSendNotification(HttpStatusCode status, string response=null)
+        {
+            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            var httpContent = response == null ? null : new StringContent(response);
+            httpMessageHandlerMock.When(TestFcmEndpoint).Respond(new HttpResponseMessage { StatusCode = status, Content = httpContent });
             client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
-
             client.SendNotification(subscription, "123");
         }
     }
