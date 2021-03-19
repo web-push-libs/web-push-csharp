@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using WebPush.Model;
 using WebPush.Util;
 
 [assembly: InternalsVisibleTo("WebPush.Test")]
@@ -202,7 +203,7 @@ namespace WebPush
                         @"Unable to send a message with payload to this subscription since it doesn't have the required encryption key");
                 }
 
-                var encryptedPayload = Encryptor.Encrypt(subscription.P256DH, subscription.Auth, payload);
+                var encryptedPayload = EncryptPayload(subscription, payload);
 
                 request.Content = new ByteArrayContent(encryptedPayload.Payload);
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
@@ -243,13 +244,31 @@ namespace WebPush
                 {
                     cryptoKeyHeader += @";" + vapidHeaders["Crypto-Key"];
                 }
-            } else if (isFcm && !string.IsNullOrEmpty(currentGcmApiKey))
+            }
+            else if (isFcm && !string.IsNullOrEmpty(currentGcmApiKey))
             {
                 request.Headers.TryAddWithoutValidation("Authorization", "key=" + currentGcmApiKey);
             }
 
             request.Headers.Add("Crypto-Key", cryptoKeyHeader);
             return request;
+        }
+
+        private static EncryptionResult EncryptPayload(PushSubscription subscription, string payload)
+        {
+            try
+            {
+                return Encryptor.Encrypt(subscription.P256DH, subscription.Auth, payload);
+            }
+            catch (Exception ex)
+            {
+                if (ex is FormatException || ex is ArgumentException)
+                {
+                    throw new InvalidEncryptionDetailsException("Unable to encrypt the payload with the encryption key of this subscription.", subscription);
+                }
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -265,9 +284,8 @@ namespace WebPush
         public void SendNotification(PushSubscription subscription, string payload = null,
             Dictionary<string, object> options = null)
         {
-            SendNotification(subscription, payload, options);
+            SendNotificationAsync(subscription, payload, options).GetAwaiter().GetResult();
         }
-        
 
         /// <summary>
         ///     To send a push notification call this method with a subscription, optional payload and any options
@@ -294,7 +312,7 @@ namespace WebPush
             var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             SendNotification(subscription, payload, options);
         }
-        
+
 
         /// <summary>
         ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
@@ -308,7 +326,7 @@ namespace WebPush
         /// </param>
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload = null,
-            Dictionary<string, object> options = null, CancellationToken cancellationToken=default)
+            Dictionary<string, object> options = null, CancellationToken cancellationToken = default)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
             var response = await HttpClient.SendAsync(request, cancellationToken);
@@ -325,7 +343,7 @@ namespace WebPush
         /// <param name="vapidDetails">The vapid details for the notification.</param>
         /// <param name="cancellationToken"></param>
         public async Task SendNotificationAsync(PushSubscription subscription, string payload,
-            VapidDetails vapidDetails, CancellationToken cancellationToken=default)
+            VapidDetails vapidDetails, CancellationToken cancellationToken = default)
         {
             var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
             await SendNotificationAsync(subscription, payload, options, cancellationToken);
@@ -339,7 +357,7 @@ namespace WebPush
         /// <param name="payload">The payload you wish to send to the user</param>
         /// <param name="gcmApiKey">The GCM API key</param>
         /// <param name="cancellationToken"></param>
-        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey, CancellationToken cancellationToken=default)
+        public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey, CancellationToken cancellationToken = default)
         {
             var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
             await SendNotificationAsync(subscription, payload, options, cancellationToken);
