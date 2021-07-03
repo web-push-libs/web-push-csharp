@@ -12,7 +12,7 @@ using WebPush.Util;
 
 namespace WebPush
 {
-    public class WebPushClient : IDisposable
+    public class WebPushClient : IWebPushClient
     {
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
@@ -265,7 +265,9 @@ namespace WebPush
         public void SendNotification(PushSubscription subscription, string payload = null,
             Dictionary<string, object> options = null)
         {
-            SendNotification(subscription, payload, options);
+            var request = GenerateRequestDetails(subscription, payload, options);
+            var response = HttpClient.SendAsync(request).Result;
+            HandleResponse(response, subscription);
         }
         
 

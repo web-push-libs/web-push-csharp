@@ -165,7 +165,7 @@ namespace WebPush.Test
         {
             var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
             var httpContent = response == null ? null : new StringContent(response);
-            httpMessageHandlerMock.When(TestFcmEndpoint).Respond(new HttpResponseMessage { StatusCode = status, Content = httpContent });
+            httpMessageHandlerMock.When(TestFcmEndpoint).Respond(req  => new HttpResponseMessage { StatusCode = status, Content = httpContent });
             client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
             client.SendNotification(subscription, "123");
         }
