@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net45;net46;net471;net48;net5.0;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
     <Authors>Cory Thompson</Authors>
     <Company />
     <Product />
