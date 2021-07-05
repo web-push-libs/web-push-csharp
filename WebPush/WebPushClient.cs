@@ -13,7 +13,7 @@ using WebPush.Util;
 
 namespace WebPush
 {
-    public class WebPushClient : IDisposable
+    public class WebPushClient : IWebPushClient
     {
         // default TTL is 4 weeks.
         private const int DefaultTtl = 2419200;
