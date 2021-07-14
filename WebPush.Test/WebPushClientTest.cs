@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using WebPush.Model;
 
 namespace WebPush.Test
 {
@@ -73,7 +74,8 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGCMAPIKeyEmptyString()
         {
-            Assert.ThrowsException<ArgumentException>(delegate { client.SetGcmApiKey(""); });
+            Assert.ThrowsException<ArgumentException>(delegate
+            { client.SetGcmApiKey(""); });
         }
 
         [TestMethod]
@@ -85,8 +87,7 @@ namespace WebPush.Test
             var subscription = new PushSubscription(TestFirefoxEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
 
-            IEnumerable<string> values;
-            Assert.IsFalse(message.Headers.TryGetValues(@"Authorization", out values));
+            Assert.IsFalse(message.Headers.TryGetValues(@"Authorization", out var values));
         }
 
         [TestMethod]
@@ -98,15 +99,14 @@ namespace WebPush.Test
             var subscription = new PushSubscription(TestGcmEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
 
-            IEnumerable<string> values;
-            Assert.IsFalse(message.Headers.TryGetValues("Authorization", out values));
+            Assert.IsFalse(message.Headers.TryGetValues("Authorization", out var values));
         }
 
         [TestMethod]
         public void TestSetVapidDetails()
         {
             client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
-            
+
             var subscription = new PushSubscription(TestFirefoxEndpoint, TestPublicKey, TestPrivateKey);
             var message = client.GenerateRequestDetails(subscription, @"test payload");
             var authorizationHeader = message.Headers.GetValues(@"Authorization").First();
@@ -161,9 +161,21 @@ namespace WebPush.Test
             Assert.AreEqual(expectedMessage, actual.Message);
         }
 
-        private void TestSendNotification(HttpStatusCode status, string response=null)
+        [TestMethod]
+        [DataRow(1)]
+        [DataRow(5)]
+        [DataRow(10)]
+        [DataRow(50)]
+        public void TestHandleInvalidPublicKeys(int charactersToDrop)
         {
-            var subscription = new PushSubscription(TestFcmEndpoint, TestPublicKey, TestPrivateKey);
+            var invalidKey = TestPublicKey.Substring(0, TestPublicKey.Length - charactersToDrop);
+
+            Assert.ThrowsException<InvalidEncryptionDetailsException>(() => TestSendNotification(HttpStatusCode.OK, response: null, invalidKey));
+        }
+
+        private void TestSendNotification(HttpStatusCode status, string response = null, string publicKey = TestPublicKey)
+        {
+            var subscription = new PushSubscription(TestFcmEndpoint, publicKey, TestPrivateKey);
             var httpContent = response == null ? null : new StringContent(response);
             httpMessageHandlerMock.When(TestFcmEndpoint).Respond(req  => new HttpResponseMessage { StatusCode = status, Content = httpContent });
             client.SetVapidDetails(TestSubject, TestPublicKey, TestPrivateKey);
