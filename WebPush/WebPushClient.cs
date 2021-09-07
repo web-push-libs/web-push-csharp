@@ -284,7 +284,7 @@ namespace WebPush
         public void SendNotification(PushSubscription subscription, string payload = null,
             Dictionary<string, object> options = null)
         {
-            SendNotificationAsync(subscription, payload, options).GetAwaiter().GetResult();
+            SendNotificationAsync(subscription, payload, options).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -329,9 +329,9 @@ namespace WebPush
             Dictionary<string, object> options = null, CancellationToken cancellationToken = default)
         {
             var request = GenerateRequestDetails(subscription, payload, options);
-            var response = await HttpClient.SendAsync(request, cancellationToken);
+            var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            HandleResponse(response, subscription);
+            await HandleResponse(response, subscription).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace WebPush
             VapidDetails vapidDetails, CancellationToken cancellationToken = default)
         {
             var options = new Dictionary<string, object> { ["vapidDetails"] = vapidDetails };
-            await SendNotificationAsync(subscription, payload, options, cancellationToken);
+            await SendNotificationAsync(subscription, payload, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -360,7 +360,7 @@ namespace WebPush
         public async Task SendNotificationAsync(PushSubscription subscription, string payload, string gcmApiKey, CancellationToken cancellationToken = default)
         {
             var options = new Dictionary<string, object> { ["gcmAPIKey"] = gcmApiKey };
-            await SendNotificationAsync(subscription, payload, options, cancellationToken);
+            await SendNotificationAsync(subscription, payload, options, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace WebPush
         /// </summary>
         /// <param name="response"></param>
         /// <param name="subscription"></param>
-        private static void HandleResponse(HttpResponseMessage response, PushSubscription subscription)
+        private static async Task HandleResponse(HttpResponseMessage response, PushSubscription subscription)
         {
             // Successful
             if (response.IsSuccessStatusCode)
@@ -398,7 +398,12 @@ namespace WebPush
                     break;
             }
 
-            var details = response.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+            string details = null;
+            if (response.Content != null)
+            {
+                details = await response.Content.ReadAsStringAsync().ConfigureAwait(false); 
+            }
+
             var message = string.IsNullOrEmpty(details)
                 ? responseCodeMessage
                 : $"{responseCodeMessage}. Details: {details}";
