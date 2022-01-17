@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net46;net471;net48;net5.0;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net452;net46;net471;net48;net5.0;net6.0;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.12</Version>
     <Authors>Cory Thompson</Authors>
@@ -15,6 +15,8 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>WebPush.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +31,7 @@
 
 
   <ItemGroup>
-    <Reference Include="System.Net.Http" Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net471'" />
+    <Reference Include="System.Net.Http" Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net471'" />
   </ItemGroup>
 
 </Project>

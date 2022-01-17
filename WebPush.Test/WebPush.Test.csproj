@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net46;net471;net48;net5.0;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;net46;net471;net48;net5.0;net6.0;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>WebPush.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +12,7 @@
     <PackageReference Include="Moq" Version="4.10.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="5.0.0" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
