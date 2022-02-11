@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
@@ -53,8 +53,8 @@ namespace WebPush.Util
 
         private static string SecureInput(Dictionary<string, object> header, Dictionary<string, object> payload)
         {
-            var encodeHeader = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
-            var encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
+            var encodeHeader = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(header)));
+            var encodePayload = UrlBase64.Encode(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload)));
 
             return $"{encodeHeader}.{encodePayload}";
         }
