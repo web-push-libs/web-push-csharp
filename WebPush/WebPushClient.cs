@@ -9,7 +9,11 @@ using System.Threading.Tasks;
 using WebPush.Model;
 using WebPush.Util;
 
-[assembly: InternalsVisibleTo("WebPush.Test")]
+[assembly: InternalsVisibleTo("WebPush.Test, PublicKey=00240000048000009400000006020000002400005253413100040000010001000dfb13e125f77d" +
+                                                      "9b8c3d9b65a48ce8cfa839fa1105fa51724e170d5c286a0cfe212f410abb22a989d70fa517f488" +
+                                                      "bcdbfeb494395ab8faec69538fd88709ba9a785a56a3ce109d71d06d0ca854d6a30299ea35d0d4" +
+                                                      "9d91dd5200e1fe0b9b9acc50ba3a565975ddae5a8dd2323f45fbf1a784655c5086f3d0230f7056" +
+                                                      "75fc89dd")]
 
 namespace WebPush
 {
