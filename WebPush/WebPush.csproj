@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;net46;net471;net48;net5.0;net6.0;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.12</Version>
     <Authors>Cory Thompson</Authors>
@@ -23,15 +23,9 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.3" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Reference Include="System.Net.Http" Condition="'$(TargetFramework)' == 'net46' OR '$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net48' OR '$(TargetFramework)' == 'net471'" />
   </ItemGroup>
 
 </Project>
