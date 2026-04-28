@@ -1,10 +1,8 @@
 <h1 align="center">web-push-csharp</h1>
 
-<p align="center">
-  [![CI Build](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml/badge.svg)](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml)
-  [![Version](https://img.shields.io/nuget/v/WebPush)](https://www.nuget.org/packages/WebPush/)
-  [![Downloads](https://img.shields.io/nuget/dt/WebPush)](https://www.nuget.org/packages/WebPush/)
-</p>
+[![CI Build](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml/badge.svg)](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml)
+[![Version](https://img.shields.io/nuget/v/WebPush)](https://www.nuget.org/packages/WebPush/)
+[![Downloads](https://img.shields.io/nuget/dt/WebPush)](https://www.nuget.org/packages/WebPush/)
 
 # Why
 
