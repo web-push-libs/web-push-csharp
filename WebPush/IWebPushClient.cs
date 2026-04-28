@@ -49,6 +49,31 @@ public interface IWebPushClient : IDisposable
         Dictionary<string, object>? options = null);
 
     /// <summary>
+    ///     To get a request without sending a push notification call this method.
+    ///     This method will throw an ArgumentException if there is an issue with the input.
+    /// </summary>
+    /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+    /// <param name="payload">The payload you wish to send to the user</param>
+    /// <param name="options">
+    ///     Options for the web push request, including vapid keys, if they are unique for each
+    ///     notification.
+    /// </param>
+    /// <returns>A HttpRequestMessage object that can be sent.</returns>
+    public HttpRequestMessage GenerateRequestDetails(PushSubscription subscription, string? payload, WebPushOptions? options = null);
+
+    /// <summary>
+    ///     To send a push notification call this method with a subscription, optional payload and any options
+    ///     Will exception if unsuccessful
+    /// </summary>
+    /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+    /// <param name="payload">The payload you wish to send to the user</param>
+    /// <param name="options">
+    ///     Options for the web push request, including vapid keys, if they are unique for each
+    ///     notification.
+    /// </param>
+    void SendNotification(PushSubscription subscription, string? payload = null, WebPushOptions? options = null);
+
+    /// <summary>
     ///     To send a push notification call this method with a subscription, optional payload and any options
     ///     Will exception if unsuccessful
     /// </summary>
@@ -78,6 +103,19 @@ public interface IWebPushClient : IDisposable
     /// <param name="payload">The payload you wish to send to the user</param>
     /// <param name="gcmApiKey">The GCM API key</param>
     void SendNotification(PushSubscription subscription, string payload, string gcmApiKey);
+
+    /// <summary>
+    ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
+    ///     Will exception if unsuccessful
+    /// </summary>
+    /// <param name="subscription">The PushSubscription you wish to send the notification to.</param>
+    /// <param name="payload">The payload you wish to send to the user</param>
+    /// <param name="options">
+    ///     Options for the web push request, including vapid keys, if they are unique for each
+    ///     notification.
+    /// </param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+    Task SendNotificationAsync(PushSubscription subscription, string? payload = null, WebPushOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     To send a push notification asynchronous call this method with a subscription, optional payload and any options
