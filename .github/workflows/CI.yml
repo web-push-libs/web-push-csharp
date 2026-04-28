@@ -8,20 +8,22 @@ on:
       - master
 jobs:
   build:
+    permissions:
+      contents: read
  
     runs-on: ubuntu-latest
  
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
  
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4.0.0
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: |
-          5.0.x
-          6.0.x
-          7.0.x
           8.0.x
+          9.0.x
+          10.0.x
+        cache: true
  
     - name: Restore
       run: dotnet restore
@@ -31,7 +33,6 @@ jobs:
  
     - name: Test
       run: |
-        dotnet test --no-restore --framework net5.0
-        dotnet test --no-restore --framework net6.0
-        dotnet test --no-restore --framework net7.0
         dotnet test --no-restore --framework net8.0
+        dotnet test --no-restore --framework net9.0
+        dotnet test --no-restore --framework net10.0

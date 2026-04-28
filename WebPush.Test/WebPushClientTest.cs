@@ -53,7 +53,7 @@ namespace WebPush.Test
             // Test previous incorrect casing of gcmAPIKey
             var options2 = new Dictionary<string, object>();
             options2[@"gcmApiKey"] = gcmAPIKey;
-            Assert.ThrowsException<ArgumentException>(delegate
+            Assert.Throws<ArgumentException>(delegate
             {
                 client.GenerateRequestDetails(subscription, "test payload", options2);
             });
@@ -74,7 +74,7 @@ namespace WebPush.Test
         [TestMethod]
         public void TestSetGCMAPIKeyEmptyString()
         {
-            Assert.ThrowsException<ArgumentException>(delegate
+            Assert.Throws<ArgumentException>(delegate
             { client.SetGcmApiKey(""); });
         }
 
@@ -144,7 +144,7 @@ namespace WebPush.Test
         [DataRow(HttpStatusCode.InternalServerError, "Received unexpected response code: 500")]
         public void TestHandlingFailureHttpCodes(HttpStatusCode status, string expectedMessage)
         {
-            var actual = Assert.ThrowsException<WebPushException>(() => TestSendNotification(status));
+            var actual = Assert.Throws<WebPushException>(() => TestSendNotification(status));
             Assert.AreEqual(expectedMessage, actual.Message);
         }
 
@@ -157,7 +157,7 @@ namespace WebPush.Test
         [DataRow(HttpStatusCode.InternalServerError, "internal error", "Received unexpected response code: 500. Details: internal error")]
         public void TestHandlingFailureMessages(HttpStatusCode status, string response, string expectedMessage)
         {
-            var actual = Assert.ThrowsException<WebPushException>(() => TestSendNotification(status, response));
+            var actual = Assert.Throws<WebPushException>(() => TestSendNotification(status, response));
             Assert.AreEqual(expectedMessage, actual.Message);
         }
 
@@ -170,7 +170,7 @@ namespace WebPush.Test
         {
             var invalidKey = TestPublicKey.Substring(0, TestPublicKey.Length - charactersToDrop);
 
-            Assert.ThrowsException<InvalidEncryptionDetailsException>(() => TestSendNotification(HttpStatusCode.OK, response: null, invalidKey));
+            Assert.Throws<InvalidEncryptionDetailsException>(() => TestSendNotification(HttpStatusCode.OK, response: null, invalidKey));
         }
 
         private void TestSendNotification(HttpStatusCode status, string response = null, string publicKey = TestPublicKey)
