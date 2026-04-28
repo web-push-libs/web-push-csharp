@@ -1,12 +1,9 @@
 <h1 align="center">web-push-csharp</h1>
 
 <p align="center">
-  <a href="https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml">
-    <img src="https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml/badge.svg" alt="CI Build" />	
-  </a>
-  <a href="https://www.nuget.org/packages/WebPush/">
-    <img src="https://buildstats.info/nuget/WebPush" alt="Nuget Package Details" />
-  </a>
+  [![CI Build](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml/badge.svg)](https://github.com/web-push-libs/web-push-csharp/actions/workflows/CI.yml)
+  [![Version](https://img.shields.io/nuget/v/WebPush)](https://www.nuget.org/packages/WebPush/)
+  [![Downloads](https://img.shields.io/nuget/dt/WebPush)](https://www.nuget.org/packages/WebPush/)
 </p>
 
 # Why
@@ -27,7 +24,7 @@ Installation is simple, just install via NuGet.
 
 # Demo Project
 
-There is a ASP.NET MVC Core demo project located [here](https://github.com/coryjthompson/WebPushDemo)
+There is a ASP.NET MVC demo project located [here](https://github.com/coryjthompson/WebPushDemo)
 
 # Usage
 
