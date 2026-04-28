@@ -1,0 +1,41 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    permissions:
+      contents: read
+ 
+    runs-on: ubuntu-latest
+ 
+    steps:
+    - uses: actions/checkout@v4
+ 
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+        cache: true
+        cache-dependency-path: '**/packages.lock.json'
+ 
+    - name: Restore
+      run: dotnet restore
+ 
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+ 
+    - name: Pack
+      run: dotnet pack --configuration Release --no-restore --no-build --output ./nupkg
+ 
+    - name: Upload NuGet Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: nupkg
+        path: ./nupkg/
+
