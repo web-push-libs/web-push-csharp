@@ -128,8 +128,12 @@ public class WebPushClientTest
     public void TestHandleInvalidPublicKeys(int charactersToDrop)
     {
         var invalidKey = TestPublicKey.Substring(0, TestPublicKey.Length - charactersToDrop);
-
+#if NET8_0
+        Assert.Throws<Exception>(() => TestSendNotification(HttpStatusCode.OK, response: null, invalidKey));
+#endif
+#if NET9_0_OR_GREATER
         Assert.ThrowsExactly<InvalidEncryptionDetailsException>(() => TestSendNotification(HttpStatusCode.OK, response: null, invalidKey));
+#endif
     }
 
     private void TestSendNotification(HttpStatusCode status, string response = null, string publicKey = TestPublicKey)
