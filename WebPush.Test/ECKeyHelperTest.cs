@@ -1,69 +1,88 @@
 ﻿using System.Linq;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.BouncyCastle.Crypto.Parameters;
 using WebPush.Util;
 
-namespace WebPush.Test
+namespace WebPush.Test;
+
+[TestClass]
+public class ECKeyHelperTest
 {
-    [TestClass]
-    public class ECKeyHelperTest
+    private const string TestPublicKey =
+        @"BCvKwB2lbVUYMFAaBUygooKheqcEU-GDrVRnu8k33yJCZkNBNqjZj0VdxQ2QIZa4kV5kpX9aAqyBKZHURm6eG1A";
+
+    private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
+
+    [TestMethod]
+    public void TestGenerateKeys()
     {
-        private const string TestPublicKey =
-            @"BCvKwB2lbVUYMFAaBUygooKheqcEU-GDrVRnu8k33yJCZkNBNqjZj0VdxQ2QIZa4kV5kpX9aAqyBKZHURm6eG1A";
+        var keypair = ECKeyHelper.GenerateKeys();
+        var publicKey = keypair.GetPublicKey();
+        var privateKey = keypair.GetPrivateKey();
 
-        private const string TestPrivateKey = @"on6X5KmLEFIVvPP3cNX9kE0OF6PV9TJQXVbnKU2xEHI";
+        var publicKeyLength = publicKey.Length;
+        var privateKeyLength = privateKey.Length;
 
-        [TestMethod]
-        public void TestGenerateKeys()
-        {
-            var keys = ECKeyHelper.GenerateKeys();
+        Assert.AreEqual(65, publicKeyLength);
+        Assert.AreEqual(32, privateKeyLength);
+    }
 
-            var publicKey = ((ECPublicKeyParameters) keys.Public).Q.GetEncoded(false);
-            var privateKey = ((ECPrivateKeyParameters) keys.Private).D.ToByteArrayUnsigned();
+    [TestMethod]
+    public void TestGenerateKeysNoCache()
+    {
+        var keys1 = ECKeyHelper.GenerateKeys();
+        var keys2 = ECKeyHelper.GenerateKeys();
 
-            var publicKeyLength = publicKey.Length;
-            var privateKeyLength = privateKey.Length;
+        var publicKey1 = keys1.GetPublicKey();
+        var privateKey1 = keys1.GetPrivateKey();
 
-            Assert.AreEqual(65, publicKeyLength);
-            Assert.AreEqual(32, privateKeyLength);
-        }
+        var publicKey2 = keys2.GetPublicKey();
+        var privateKey2 = keys2.GetPrivateKey();
 
-        [TestMethod]
-        public void TestGenerateKeysNoCache()
-        {
-            var keys1 = ECKeyHelper.GenerateKeys();
-            var keys2 = ECKeyHelper.GenerateKeys();
+        Assert.IsFalse(publicKey1.SequenceEqual(publicKey2));
+        Assert.IsFalse(privateKey1.SequenceEqual(privateKey2));
+    }
 
-            var publicKey1 = ((ECPublicKeyParameters) keys1.Public).Q.GetEncoded(false);
-            var privateKey1 = ((ECPrivateKeyParameters) keys1.Private).D.ToByteArrayUnsigned();
+    [TestMethod]
+    public void TestGetPrivateKey()
+    {
+        var privateKey = Base64UrlEncoder.DecodeBytes(TestPrivateKey);
+        var publicKey = Base64UrlEncoder.DecodeBytes(TestPublicKey);
+        var keypair = ECKeyHelper.GetKeyPair(privateKey, publicKey);
 
-            var publicKey2 = ((ECPublicKeyParameters) keys2.Public).Q.GetEncoded(false);
-            var privateKey2 = ((ECPrivateKeyParameters) keys2.Private).D.ToByteArrayUnsigned();
+        var importedPrivateKey = keypair.GetEncodedPrivateKey();
+        Assert.AreEqual(TestPrivateKey, importedPrivateKey);
 
-            Assert.IsFalse(publicKey1.SequenceEqual(publicKey2));
-            Assert.IsFalse(privateKey1.SequenceEqual(privateKey2));
-        }
+        var rawPrivateKey = keypair.GetPrivateKey();
+        Assert.IsTrue(privateKey.SequenceEqual(rawPrivateKey));
+    }
 
-        [TestMethod]
-        public void TestGetPrivateKey()
-        {
-            var privateKey = UrlBase64.Decode(TestPrivateKey);
-            var privateKeyParams = ECKeyHelper.GetPrivateKey(privateKey);
+    [TestMethod]
+    public void TestGetPublicKey()
+    {
+        var privateKey = Base64UrlEncoder.DecodeBytes(TestPrivateKey);
+        var publicKey = Base64UrlEncoder.DecodeBytes(TestPublicKey);
+        var keypair = ECKeyHelper.GetKeyPair(privateKey, publicKey);
 
-            var importedPrivateKey = UrlBase64.Encode(privateKeyParams.D.ToByteArrayUnsigned());
+        var importedPublicKey = keypair.GetEncodedPublicKey();
+        Assert.AreEqual(TestPublicKey, importedPublicKey);
 
-            Assert.AreEqual(TestPrivateKey, importedPrivateKey);
-        }
+        var rawPublicKey = keypair.GetPublicKey();
+        Assert.IsTrue(publicKey.SequenceEqual(rawPublicKey));
+    }
 
-        [TestMethod]
-        public void TestGetPublicKey()
-        {
-            var publicKey = UrlBase64.Decode(TestPublicKey);
-            var publicKeyParams = ECKeyHelper.GetPublicKey(publicKey);
+    [TestMethod]
+    public void TestGetKeyPairNet()
+    {
+        var privateKey = Base64UrlEncoder.DecodeBytes(TestPrivateKey);
+        var publicKey = Base64UrlEncoder.DecodeBytes(TestPublicKey);
 
-            var importedPublicKey = UrlBase64.Encode(publicKeyParams.Q.GetEncoded(false));
+        var keypair = ECKeyHelper.GetKeyPair(privateKey, publicKey);
 
-            Assert.AreEqual(TestPublicKey, importedPublicKey);
-        }
+        var importedPublicKey = keypair.GetEncodedPublicKey();
+        Assert.AreEqual(TestPublicKey, importedPublicKey);
+
+        var importedPrivateKey = keypair.GetEncodedPrivateKey();
+        Assert.AreEqual(TestPrivateKey, importedPrivateKey);
     }
 }
