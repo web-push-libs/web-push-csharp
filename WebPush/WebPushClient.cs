@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -226,7 +227,7 @@ public partial class WebPushClient : IWebPushClient
         }
         catch (Exception ex)
         {
-            if (ex is FormatException || ex is ArgumentException)
+            if (ex is FormatException || ex is ArgumentException || ex is CryptographicException)
             {
                 throw new InvalidEncryptionDetailsException("Unable to encrypt the payload with the encryption key of this subscription.", subscription);
             }
